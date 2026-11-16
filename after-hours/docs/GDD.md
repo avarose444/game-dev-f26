@@ -15,7 +15,7 @@
 
 > **After Hours is a one-night life sim in a neon city district: you create a character, choose where to spend each hour, and talk with three residents who remember what you said and did, so the relationships you end the night with feel like ones you actually made.**
 
-The X I used on November 9 combined GTA, Cyberpunk 2077 and The Sims in an open-world life simulator with "complete freedom." This version keeps the fantasy of building whatever life you want, but locates the freedom in **who you are and how you treat people**, not in map size. [RECOMMENDATION from the Producer role; it narrows the original pitch. I need to confirm I accept it.]
+**Changes since the first pitch round.** I missed the November 9 session, so I heard no live notes. My first-round concept combined GTA, Cyberpunk 2077 and The Sims in an open-world life simulator with "complete freedom." I then narrowed the agent to NPC interactions and relationships rather than the whole world. This version keeps the fantasy of building whatever life you want, but locates the freedom in **who you are and how you treat people**, not in map size. [RECOMMENDATION from the Producer role to narrow the scope; **accepted by me as Creative Director on November 15.**]
 
 ## 2. Player and motivation
 
