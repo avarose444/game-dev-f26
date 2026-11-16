@@ -12,9 +12,9 @@
 | G1 decision posted (Approve / Hold) | by Tue Nov 17 |
 | Two Braintrust replies due | Thu Nov 19, 11:59 p.m. |
 | G1 graded feedback returned | by Mon Nov 23 |
-| **G2/G3 combined review** | **[fill in from syllabus]** |
-| G4 Final / Pre-Launch | [fill in from syllabus] |
-| G5 Retrospective | [fill in from syllabus] |
+| **G2/G3 combined review** | **Not yet posted in the syllabus (checked Nov 15).** [OPEN] Added when announced; my plan aims for a playable night and a first external playtest by Dec 5. |
+| G4 Final / Pre-Launch | Not yet posted. [OPEN] |
+| G5 Retrospective | Not yet posted. [OPEN] |
 
 ## Goal for the next work cycle
 
