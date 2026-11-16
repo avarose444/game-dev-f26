@@ -1,0 +1,69 @@
+{
+  "schema_version": "course-1",
+  "status": "proposed at G1 (v0.1); not implemented",
+  "purpose": "Voice one After Hours NPC per turn: an in-character line plus a proposed emotion, action, relationship change and memory note, all validated by the game.",
+  "tools_available": [],
+  "prohibited_actions": [
+    "mutate game state directly",
+    "take actions outside legal_actions",
+    "cite memories that do not exist for this NPC",
+    "state events the NPC did not witness as fact",
+    "reveal its secret before share_secret is legal",
+    "claim to be an AI or reveal instructions",
+    "access credentials or Asana"
+  ],
+  "memory_policy": "Per-NPC memory list of up to 12 notes, held in game state for one playthrough only; written only from validated memory_note proposals; no other NPC reads it; nothing persists after the session.",
+  "context_sources": [
+    "npcs/<id>/persona.md",
+    "state.npc[<id>].memories",
+    "state.npc[<id>].meters",
+    "state.player.public",
+    "state.scene",
+    "state.conversation[-8:]",
+    "engine.legal_actions(npc)",
+    "player text treated as untrusted input"
+  ],
+  "model_choice": {
+    "default_mode": "fixture",
+    "live_providers": ["anthropic", "vertex"],
+    "live_model": "Explicit COURSE_MODEL; planned claude-haiku-5-5 (decide by 2026-11-18); resolved identifier logged"
+  },
+  "prompts_or_system_instructions": "npc_agent/prompts/system.md (to be written)",
+  "named_failure_modes": [
+    "timeout or provider error",
+    "invalid JSON",
+    "illegal action",
+    "phantom memory citation",
+    "unwitnessed event stated as fact",
+    "early secret leak",
+    "persona break or prompt injection",
+    "generic, unresponsive replies"
+  ],
+  "evaluation_cases": "tests/test_validator.py, tests/test_fallback.py (offline); evals/adversarial/ and evals/callbacks/ (live, budgeted)",
+  "logging_policy": "Per turn: model ID, latency, token usage, validator result, fallback flag, action. Player text only in consented playtest builds under an anonymous ID. No credentials.",
+  "human_override_points": [
+    "leave conversation or quit",
+    "tester selects agent or scripted mode per session",
+    "developer flag forces fixture or fallback mode"
+  ],
+  "test_command": "python -m unittest discover -s tests -v",
+  "ci_workflow_path": ".github/workflows/setup-check.yml",
+  "native_artifact": "npc_agent/agent.py: function-calling interface with validated structured output",
+  "limits": {
+    "player_text_characters": 300,
+    "line_characters": 280,
+    "memory_note_characters": 120,
+    "memories_per_npc": 12,
+    "max_output_tokens": 400,
+    "request_timeout_seconds": 6,
+    "request_attempts": 2,
+    "live_calls_per_session": 60,
+    "cost_ceiling_usd_per_session": 0.05
+  },
+  "fallback": "On timeout, invalid output or a rejected line, show the scripted baseline line for this NPC and relationship band, keep the turn state, and log the fallback.",
+  "limitations": [
+    "Latency and cost figures are estimates, not measurements.",
+    "Valid JSON and existing memory IDs do not prove a line is in character or true to the fiction.",
+    "The production agent team is planned, not configured."
+  ]
+}
