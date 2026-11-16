@@ -64,7 +64,7 @@ Name, pronouns, one of three portraits, a background (Courier / Musician / Ex-co
 | Rooftop of the Kessler building | **Jun**, neighbor and freelance fixer | Can offer a job; holds a secret about the building. |
 | Night market clinic stall | **Nico**, street medic | Wary of strangers; can ask you for a favor. |
 
-Names, places and characters are original. [OPEN: final names and personas by Nov 24.]
+Names, places and characters are original. [OPEN: final names and personas by Nov 22.]
 
 ### Relationships
 - Two meters per NPC: **Trust** and **Warmth**, each running from −5 to +5 and starting at 0.
@@ -107,11 +107,11 @@ At 4 a.m. the game shows a summary card for each NPC: where the relationship end
 
 ## 10. Balance
 
-[OPEN] Meter thresholds and per-turn deltas are guesses. They get tuned after the first internal play-throughs (week of Nov 30). The goal is that a sincere player reaches at least one "unlocked" moment (a secret, job or favor) with at least one NPC in a single night.
+[OPEN] Meter thresholds and per-turn deltas are guesses. They get tuned after the internal play-through on Nov 25 and the Thanksgiving playtest. The goal is that a sincere player reaches at least one "unlocked" moment (a secret, job or favor) with at least one NPC in a single night.
 
 ## 11. Presentation (minimum needed)
 
-- **Art:** three NPC portraits with 3–6 expression variants, three static location backgrounds, and a neon-noir palette. [OPEN: original art, CC0 packs, or AI-generated. Record the license for every asset. Decide by Nov 24.]
+- **Art:** three NPC portraits with 3–6 expression variants, three static location backgrounds, and a neon-noir palette. [OPEN: original art, CC0 packs, or AI-generated. Record the license for every asset. Decide by Nov 22.]
 - **Audio:** one ambient loop per location and UI sounds, from CC0 sources. Optional for G2.
 - **Narrative:** a persona card for each NPC (voice, wants, fears, secret, three "lines they'd never say") plus the authored baseline tree.
 
@@ -152,9 +152,9 @@ We expect an **NPC agent that recalls specific things the player said or did, an
 | 1 | Engine and UI stack | Nov 20 |
 | 2 | Model provider and model (planned: Claude Haiku 5.5; Gemini Flash-Lite is the course default alternative) | Nov 18 |
 | 3 | Does free text help or hurt compared with suggested replies only? | First experiment, Nov 22 |
-| 4 | Asset source and licenses | Nov 24 |
-| 5 | Final NPC names and personas | Nov 24 |
-| 6 | Meter thresholds and balance | Week of Nov 30 |
+| 4 | Asset source and licenses | Nov 22 |
+| 5 | Final NPC names and personas | Nov 22 |
+| 6 | Meter thresholds and balance | Nov 25–27 |
 | 7 | Within-subjects playtest order effects: does playing the same night twice bias the second run? | Before the first external playtest |
 | 8 | Which other concepts did I consider? (Section 16 lists two; add any others.) | Before posting |
 

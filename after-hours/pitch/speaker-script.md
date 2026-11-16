@@ -32,7 +32,7 @@ In **scope**: making a character, three locations, three characters, relationshi
 **Budgets**. I want a reply to start appearing in about a second and a half, and to be finished within three seconds. Those are targets; I haven't measured them yet. With a small, cheap model, one reply costs about three hundredths of a cent, so a whole session is about a penny and a half. I set a hard cap of five cents per session.
 
 **[Slide 10]**
-My **Risk Profile**. Two risks are High: technology and timeline. They share one cause: I haven't proven the AI characters work yet. So my first task is a test with one character by November 21, and on November 24 I decide whether to keep three characters or cut to two. The other four are Medium.
+My **Risk Profile**. Two risks are High: technology and timeline. They share one cause: I haven't proven the AI characters work yet. So my first task is a test with one character by November 20, and on November 22 I decide whether to keep three characters or cut to two. The other four are Medium.
 
 **[Slide 11]**
 What I'm asking for: approval to build this one-night prototype. First the one-character test, then the full night in both versions, then a playtest with someone outside my project. If I get a **Hold**, it'd probably be to shrink the scope or prove the AI follows the rules, and I'd come back with my test results. To be clear, the X, the pillars and the hypothesis are my decisions. Shrinking the scope and the budget numbers were suggestions from my AI producer agent that I accepted. Thanks!
