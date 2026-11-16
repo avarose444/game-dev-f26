@@ -1,38 +1,38 @@
-# After Hours — G1 Speaker Script
+# After Hours — G1 Speaker Script (plain-language version)
 
-About 680 words, roughly 4 min 40 s at a comfortable pace (~145 wpm). Each **[Slide N]** cue matches the deck. If you run long, trim the bracketed *(optional)* lines first.
+About 700 words, roughly 4 min 45 s at a normal speaking pace. Each **[Slide N]** cue matches the deck. Course terms are in **bold** the first time you say them, because the rubric checks for course vocabulary.
 
 ---
 
-**[Slide 1: Title and the X]**
-Hi, I'm Ava, and this is *After Hours*. My X: After Hours is a one-night life sim in a neon city district. You create a character, choose where to spend each hour, and talk with three residents who remember what you said and did, so the relationships you end the night with feel like ones you actually made.
+**[Slide 1]**
+Hi, I'm Ava, and my game is called After Hours. Here's the one-sentence version, what the course calls **the X**: you play one night in a neon city. You make a character, pick where to spend each hour, and talk to three people who actually remember what you said and did. By morning, your relationships should feel like ones *you* made.
 
-**[Slide 2: Player and motivation]**
-It's for players who love open-world and life-sim games for their characters more than their combat. The motivation is self-expression and connection. In a playtest, if it works, I'd see players return to an NPC unprompted to follow up on something, type replies that refer back to earlier moments, and, when I ask "tell me about Mara," describe something specific that happened between them.
+**[Slide 2]**
+It's for people who play games like Cyberpunk or The Sims for the characters, not the fighting. How would I know it's working? In a **playtest** I'd watch for three things. Players go back to a character on their own. They type things like "sorry about earlier." And when I ask "tell me about Mara," they describe a moment between them, not just "she's nice."
 
-**[Slide 3: Core loop]**
-The loop: you act, by picking a location for the hour and talking or offering something. The NPC responds in character and may take a validated action, like offering a job or refusing a favor. You interpret the reaction, the meter change and the "Mara will remember that" cue. Then you choose your next action: push, repair, or spend your next hour with someone else. Six hours, three people: you can't see everyone.
+**[Slide 3]**
+This is the **core loop**, what you do over and over. You pick a place and say something. The character reacts, and maybe offers you a job or turns you down. You read how it went. Then you decide: keep going, fix it, or spend your next hour with someone else. Six hours, three people: you can't see everyone.
 
-**[Slide 4: Pillars and concepts considered]**
-Three pillars. They remember you. Small city, deep people. Your night, your terms. I considered two other concepts. My original was a full open-world sim mixing GTA, Cyberpunk and The Sims; it can't reach a testable playable by G2/G3. Then an AI "city director" running world events, but players can't tell a generated event from a scripted one. This concept won because the agent's effect is visible in conversation, and it has a clean scripted baseline.
+**[Slide 4]**
+My three **pillars**, the rules I use to make design choices: they remember you; small city, deep people; and your night, your terms. My first idea was a huge open world, GTA plus Cyberpunk plus The Sims. That's way too big for this semester. My second was an AI that runs the whole city's events, but players couldn't tell what the AI did, so I couldn't test it. This version won because you can see the AI's effect right in the conversation.
 
-**[Slide 5: References]**
-From The Sims I borrow visible relationship meters, but they move from what you say, not from repeating a chat action. From Cyberpunk 2077, the neon tone; there's no combat. From GTA, only the sense that the city lives without you. *Façade* is my closest precedent: free-text conversation in one place over twenty minutes. The memory list simplifies the *Generative Agents* paper. The validation pattern comes from the course starter. Everything is inspiration only: no assets, names or code.
+**[Slide 5]**
+Where the ideas come from. From The Sims, the relationship bars, except mine move based on what you say. From Cyberpunk, the scene where you first meet Evelyn Parker at a bar. She only tells you what she wants to, and you have to decide whether to trust her. That's exactly how Mara starts. Façade is the closest older game: you type to two characters in one apartment. The memory idea comes from a research paper called Generative Agents. I'm not using anyone's art, characters or code.
 
-**[Slide 6: Systems diagram]**
-The game engine owns the world state: time, meters, flags, every NPC's memories. Each turn it builds a bounded context packet: this NPC's persona, its own memories and meters, the public player profile, recent lines, and the legal actions. Player text is untrusted. The model returns JSON. A deterministic validator checks the action is legal, clamps the meter change, and rejects memories that don't exist. If anything fails, or the call takes more than six seconds, the scripted line plays instead. The NPC never sees other NPCs' memories or events it didn't witness.
+**[Slide 6]**
+How it works. The game keeps the real facts: the time, the relationship scores, what everyone remembers. When you talk to Mara, the AI only gets what Mara should know. That's her **knowledge boundary**. The AI suggests a reply, and a **validator** checks it follows the rules: no actions she isn't allowed to take, no memories that never happened. If the reply breaks a rule or takes over six seconds, a pre-written line plays instead.
 
-**[Slide 7: Agent hypothesis]**
-My hypothesis: an NPC agent that recalls specific things you said or did, and acts only through validated actions, will make players feel their relationships are their own, compared with an authored branching-dialogue version of the same three NPCs. Playtest question: when an NPC brings up something you did earlier, do you treat it as part of the relationship? Players play one short night in each mode, order alternated, and I count return visits, callback replies and specific moments recalled. With the scripted baseline, the player loses responses to their own words and callbacks to anything I didn't pre-flag.
+**[Slide 7]**
+My **agent hypothesis**: characters who remember specific things you did make the relationship feel like yours. I compare that with a **scripted baseline**, the same characters with normal pre-written dialogue choices. People play one short night each way. I count how often they go back to someone and bring up earlier moments, and what they remember afterward. With the scripted version, you lose this: characters can't respond to your own words, and they only remember what I planned for.
 
-**[Slide 8: Scope]**
-Included: character setup, one block with three locations, three NPCs in both modes, meters, memory, and a dawn summary. Excluded: open world, driving, combat, economy, needs, multiple nights, NPC gossip. I'd cut first the third NPC, then portraits, then free text. Memory and validation stay.
+**[Slide 8]**
+In **scope**: making a character, three locations, three characters, relationship scores, memory, and a summary at dawn. Out: open world, driving, fighting, money, more than one night. If I run short on time, I cut the third character first, then the character art, then typing. Memory and the validator stay, because they're what I'm testing.
 
-**[Slide 9: Budgets]**
-Latency targets, not yet measured: first streamed text under 1.5 seconds median, the full line under 3 seconds at p95, and a 6-second hard timeout. Cost: on Claude Haiku 5.5, about two thousand input and a hundred fifty output tokens per turn comes to about $0.0003. Forty turns plus summaries is about a cent and a half per session, with a hard ceiling of five cents.
+**[Slide 9]**
+**Budgets**. I want a reply to start appearing in about a second and a half, and to be finished within three seconds. Those are targets; I haven't measured them yet. With a small, cheap model, one reply costs about three hundredths of a cent, so a whole session is about a penny and a half. I set a hard cap of five cents per session.
 
-**[Slide 10: Risk Profile]**
-Technology and Timeline are High, and they share a cause: the unproven NPC agent loop. My first experiment, one NPC in the console by November 21, measures latency and validator failures, and on November 24 I either continue or cut to two NPCs. IP, Audience, Team and Mechanics are Medium. *(optional: The rescope already removed the biggest mechanics risk.)*
+**[Slide 10]**
+My **Risk Profile**. Two risks are High: technology and timeline. They share one cause: I haven't proven the AI characters work yet. So my first task is a test with one character by November 21, and on November 24 I decide whether to keep three characters or cut to two. The other four are Medium.
 
-**[Slide 11: Decision requested]**
-I'm asking for approval to prototype the one-night, three-NPC slice: Experiment 1, then a playable night in both modes, and an external playtest before G2/G3. A Hold would most likely need me to reduce scope further or show the agent can be validated, and I'd return with Experiment 1's measurements. To be clear about who decided what: the narrowed scope and the budgets were recommendations from my Producer agent. The X, the pillars and the hypothesis are my decisions. Thanks.
+**[Slide 11]**
+What I'm asking for: approval to build this one-night prototype. First the one-character test, then the full night in both versions, then a playtest with someone outside my project. If I get a **Hold**, it'd probably be to shrink the scope or prove the AI follows the rules, and I'd come back with my test results. To be clear, the X, the pillars and the hypothesis are my decisions. Shrinking the scope and the budget numbers were suggestions from my AI producer agent that I accepted. Thanks!
