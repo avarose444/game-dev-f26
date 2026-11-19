@@ -183,7 +183,7 @@ We expect an **NPC agent that remembers specific things the player said or did, 
 | 2 | Model (planned: Claude Haiku 5.5) | Nov 20 |
 | 3 | Can the agent detect lies and promises from free text reliably enough (≥ 85% agreement with my labels)? | Experiment 1, Nov 21 |
 | 4 | Asset source and licenses | Nov 22 |
-| 5 | Is the score a data chip (current) or something darker? | Nov 22 |
+| 5 | ~~Is the score a data chip or something darker?~~ **[DECISION, Nov 19]: a stolen corp data chip.** It fits the setting and keeps NPC dialogue away from drug deals, which keeps the safety filter simpler. | Decided |
 | 6 | Clue thresholds and balance | Nov 25–27 |
 | 7 | Playing the same mystery twice (once per mode) spoils it. Use two variants of the truth? | Before the first external playtest |
 
