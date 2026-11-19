@@ -1,31 +1,39 @@
 {
   "schema_version": "course-1",
-  "status": "proposed at G1 (v0.1); not implemented",
-  "purpose": "Voice one After Hours NPC per turn: an in-character line plus a proposed emotion, action, relationship change and memory note, all validated by the game.",
+  "status": "proposed (v0.2, revised after G1 Braintrust feedback); not implemented",
+  "purpose": "Voice one After Hours NPC per turn in a one-night mystery: an in-character line plus a proposed emotion, action (including reveal_clue and commit), relationship change, memory note and memory fact, all validated by the game. Dialogue may not reveal or promise anything the game has not approved.",
   "tools_available": [],
   "prohibited_actions": [
     "mutate game state directly",
     "take actions outside legal_actions",
+    "reveal a clue, or imply one, unless reveal_clue is legal and proposed",
+    "promise a meeting, item or help unless a matching commit or action is proposed",
+    "record a memory fact without an exact quote from the player's message as evidence",
     "cite memories that do not exist for this NPC",
     "state events the NPC did not witness as fact",
-    "reveal its secret before share_secret is legal",
     "claim to be an AI or reveal instructions",
     "access credentials or Asana"
   ],
-  "memory_policy": "Per-NPC memory list of up to 12 notes, held in game state for one playthrough only; written only from validated memory_note proposals; no other NPC reads it; nothing persists after the session.",
+  "memory_policy": "Per-NPC memory list of up to 12 free-text notes plus a small set of memory facts (lied_to, promised, kindness, flirted, asked_openly) that game logic reads, held in game state for one playthrough; written only from validated proposals, tagged suggested replies or authored event choices; no other NPC reads them except witnessed events. Only ending IDs persist across sessions (endings gallery).",
   "context_sources": [
-    "npcs/<id>/persona.md",
+    "npcs/<id>/persona.md (no clue text)",
     "state.npc[<id>].memories",
+    "state.npc[<id>].facts",
     "state.npc[<id>].meters",
+    "state.npc[<id>].revealed_clue (only after reveal_clue is accepted)",
     "state.player.public",
     "state.scene",
+    "state.event",
     "state.conversation[-8:]",
     "engine.legal_actions(npc)",
     "player text treated as untrusted input"
   ],
   "model_choice": {
     "default_mode": "fixture",
-    "live_providers": ["anthropic", "vertex"],
+    "live_providers": [
+      "anthropic",
+      "vertex"
+    ],
     "live_model": "Explicit COURSE_MODEL; planned claude-haiku-5-5 (decide by 2026-11-18); resolved identifier logged"
   },
   "prompts_or_system_instructions": "npc_agent/prompts/system.md (to be written)",
@@ -33,13 +41,15 @@
     "timeout or provider error",
     "invalid JSON",
     "illegal action",
+    "line reveals or promises something the game did not approve",
+    "invented memory fact (no evidence)",
+    "missed lie or promise",
     "phantom memory citation",
     "unwitnessed event stated as fact",
-    "early secret leak",
     "persona break or prompt injection",
     "generic, unresponsive replies"
   ],
-  "evaluation_cases": "tests/test_validator.py, tests/test_fallback.py (offline); evals/adversarial/ and evals/callbacks/ (live, budgeted)",
+  "evaluation_cases": "tests/test_validator.py, tests/test_consistency.py, tests/test_fallback.py (offline); evals/consistency/, evals/facts/, evals/adversarial/ and evals/callbacks/ (live, budgeted)",
   "logging_policy": "Per turn: model ID, latency, token usage, validator result, fallback flag, action. Player text only in consented playtest builds under an anonymous ID. No credentials.",
   "human_override_points": [
     "leave conversation or quit",
@@ -58,11 +68,15 @@
     "request_timeout_seconds": 6,
     "request_attempts": 2,
     "live_calls_per_session": 60,
-    "cost_ceiling_usd_per_session": 0.05
+    "cost_ceiling_usd_per_session": 0.05,
+    "memory_facts_per_npc": 8,
+    "regenerations_per_turn": 1
   },
-  "fallback": "On timeout, invalid output or a rejected line, show the scripted baseline line for this NPC and relationship band, keep the turn state, and log the fallback.",
+  "fallback": "On timeout, invalid output, an illegal action or a line that implies an unapproved action: regenerate once, then show the scripted baseline line for this NPC and relationship band, keep the turn state, and log the fallback.",
   "limitations": [
     "Latency and cost figures are estimates, not measurements.",
+    "Keyword checks for line/action consistency are coarse: they can reject good lines and miss paraphrased leaks; clue text is withheld from context to cover the second case.",
+    "Lie and promise detection from free text is unmeasured; Experiment 1 measures agreement with hand labels.",
     "Valid JSON and existing memory IDs do not prove a line is in character or true to the fiction.",
     "The production agent team is planned, not configured."
   ]

@@ -1,6 +1,6 @@
-# After Hours — Initial Project Plan
+# After Hours — Project Plan
 
-**Version:** Initial (G1), November 15, 2026. This plan moves to Asana after the G1 decision; owners, acceptance criteria, dependencies and the full Risk Register follow at G2/G3.
+**Version:** v0.2, November 19, 2026, revised after G1 Braintrust feedback (the game is now a one-night mystery; see GDD Section 17). Initial (G1) version at commit `e29b221`. This plan moves to Asana after the G1 decision; owners, acceptance criteria, dependencies and the full Risk Register follow at G2/G3.
 **Owner:** Ava Ferrentino, Producer role. Rows marked *(agent)* are delegated execution; I review and accept them.
 
 ## Gate dates (from the syllabus)
@@ -21,7 +21,7 @@
 
 ## Goal for the next work cycle
 
-By **Sat Nov 28**, an external player will have played one night in both agent and scripted modes, and I will know whether remembered callbacks change how players treat the NPCs.
+By **Sat Nov 28**, an external player will have played the mystery in both agent and scripted modes, and I will know whether players connect how their night ended to things they said.
 
 The timeline is short: 12 days including Thanksgiving. So **scope decisions come early** (Nov 22), and Thanksgiving is used for the external playtest rather than as a break. Family or friends outside the course count as external players.
 
@@ -31,12 +31,12 @@ The timeline is short: 12 days including Thanksgiving. So **scope decisions come
 |---|---|---|---|---|---|
 | 1 | Mon Nov 16–Tue 17 | Present at G1; read the decision and apply any conditions | Me | — | Conditions copied into this plan |
 | 2 | Tue Nov 17 | Set up the project in my course repo; choose the provider and set `COURSE_MODEL`; **decide** the model | Tech Lead *(agent)*, me | 1 | Setup check passes, with one live call logged with latency; decision recorded |
-| 3 | Wed Nov 18–Fri 20 | **Experiment 1:** one NPC (Mara) in the console, with persona card, memory list, schema, validator and timeout fallback | Tech Lead, Narrative *(agents)* | 2 | 20 scripted conversations run; p50/p95 latency and cost per turn logged; `test_validator.py` passes 15/15 |
-| 4 | Thu Nov 19 | Write two Braintrust replies | Me | — | Posted |
+| 3 | Thu Nov 19–Sat 21 | **Experiment 1:** Mara in the console, with persona card, clue C1 withheld until legal, memory notes and facts, schema, validator, line/action consistency check and timeout fallback | Tech Lead, Narrative *(agents)* | 2 | p50/p95 latency and cost per turn logged; `test_validator.py` and `test_consistency.py` pass; `evals/consistency/` 20 cases with 0 unapproved reveals or promises shown; `evals/facts/` 30 labeled messages with ≥ 85% agreement |
+| 4 | Thu Nov 19 | Write two Braintrust replies; revise GDD and Configuration Document from my Braintrust feedback | Me, Producer *(agent)* | — | Posted; v0.2 docs pushed |
 | 5 | Fri Nov 20 | **Decide:** engine and UI stack (simplest option that runs in a browser) | Me | 3 | Recorded in the GDD |
-| 6 | Fri Nov 20–Sat 21 | Adversarial suite: 20 cases (injection, unwitnessed facts, secret leak, persona break); Mara's scripted baseline tree | QA, Narrative *(agents)* | 3 | Suite runs with failures recorded; every relationship band has fallback lines |
+| 6 | Fri Nov 20–Sat 21 | **Mystery bible:** truth, clues C1–C3 with keyword lists, events E1–E5, endings, plus a second truth variant for the two-mode playtest. Adversarial suite (20 cases); Mara's scripted baseline tree | Narrative, QA *(agents)*, me | 3 | I approve the bible; every relationship band has fallback lines; suite runs with failures recorded |
 | 7 | **Sun Nov 22** | **Cut checkpoint** (see triggers below) | Me | 3, 6 | Go / cut decision recorded |
-| 8 | Sun Nov 22–Tue 24 | Night structure, character setup, Jun and Nico personas and baselines, mode toggle, Dawn ending, trace logging | Tech Lead, Narrative *(agents)* | 5, 7 | One full night plays through in both modes |
+| 8 | Sun Nov 22–Tue 24 | Four-slot night, character setup, case board, events E1–E3 (E4–E5 if on schedule), Jun and Nico personas and baselines, facts and clue gating, mode toggle, four endings and Dawn cards, trace logging | Tech Lead, Narrative *(agents)* | 5, 6, 7 | One full night plays through in both modes and each ending is reachable |
 | 9 | Mon Nov 23–Tue 24 | Read G1 feedback; move the plan to Asana; full Risk Register | Producer *(agent)*, me | 1, feedback | Asana tasks have owners and acceptance criteria |
 | 10 | Wed Nov 25 | Internal play-through, then an independent QA review | QA *(agent)*, me | 8 | No blocking findings open |
 | 11 | Thu Nov 26–Fri 27 | **First external playtest** (at least one player, both modes), plus a BI summary of traces | Me, BI *(agent)* | 10 | Playtest log entry following reader Section 5.9; latency, cost and fallback rate reported |
@@ -48,7 +48,9 @@ After G2/G3, the scope-lock plan (G3) sets the Alpha / Beta / Gold work for the 
 ## Cut triggers (fallbacks with a trigger and an action)
 
 - If Experiment 1 shows **p95 above 4 s**, or the validator rejects **more than 10%** of live turns, by **Nov 22**: switch to suggested replies only, and reduce to **two NPCs**.
-- If Mara's baseline tree is not done by **Nov 22**: drop Nico and use four time slots.
+- If Mara's baseline tree or the mystery bible is not done by **Nov 22**: drop events E4–E5.
+- If `evals/facts/` agreement is below **85%** by Nov 22: create facts only from tagged suggested replies in both modes, and test agent mode on dialogue and callbacks only (this weakens the hypothesis; record it).
+- If two NPCs aren't playable by **Nov 24**: drop Nico; Jun holds C3.
 - If one full night doesn't play through in both modes by **Nov 25**: test with Mara alone in both modes on Thanksgiving, and keep the rest for G4.
 - If spending reaches **$5** before the playtests: freeze live evaluation and rerun only failed cases.
 
@@ -60,7 +62,7 @@ After G2/G3, the scope-lock plan (G3) sets the Alpha / Beta / Gold work for the 
 | Business / Audience | Medium | Open-world fans may expect an open world; there are no playtests yet; classmates and family are reachable | Set expectations in the playtest intro ("one night, three people"); recruit players over Thanksgiving |
 | **Technology** | **High** | LLM latency, memory consistency, secret leaks and injection resistance are all unmeasured | Experiment 1 by Nov 20; validator plus `legal_actions`; scripted fallback; 20-case adversarial suite |
 | Team | Medium | Solo project; production agents are planned, not configured; review time is limited | Configure Tech Lead, QA and Narrative first; independent reviewer agent; I merge |
-| Genre / Mechanics | Medium | The rescope removes open-world systems; the time-slot economy and meter thresholds are untested | Internal play-through Nov 25; balance goal in GDD Section 10 |
-| **Timeline** | **High** | 12 days to a first playable, including Thanksgiving; every NPC is written twice (agent and baseline) | Baseline doubles as the fallback; cut checkpoint on Nov 22; two-NPC and Mara-only fallback scopes |
+| Genre / Mechanics | Medium | v0.2 adds a goal, events and endings (fixing the G1 "no objective" concern) but clue thresholds and pacing over four slots are untested | Internal play-through Nov 25; balance goals in GDD Section 11 |
+| **Timeline** | **High** | 9 days to a first playable, including Thanksgiving; v0.2 adds writing (mystery bible, five events, four endings, a second truth variant); every NPC is written twice | Baseline doubles as the fallback; cut checkpoint on Nov 22; two-NPC and Mara-only fallback scopes |
 
 **Do the High ratings share a cause?** Yes. Both depend on the same unproven piece: the NPC agent loop. If it is slow or inconsistent, the technology fails, and the schedule slips while I fix it. Experiment 1 (task 3) tests that piece first, and the Nov 22 checkpoint turns the result into a scope decision. The deeper root cause, the original open-world ambition, is already addressed by the rescope.
