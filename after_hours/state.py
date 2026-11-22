@@ -36,7 +36,8 @@ class GameState:
         "name": "Sam", "pronouns": "they/them", "background": "Courier", "trait": "Honest"})
     slot: str = "midnight"
     location: str = "lantern"
-    npcs: dict[str, NPCState] = field(default_factory=lambda: {"mara": NPCState()})
+    npcs: dict[str, NPCState] = field(default_factory=lambda: {n: NPCState() for n in ("mara", "jun", "nico")})
+    credits: int = 20
     conversation: list[dict] = field(default_factory=list)   # {"speaker": ..., "text": ...}
     case_board: list[str] = field(default_factory=list)
     flags: set[str] = field(default_factory=set)              # e.g. "covered_tab" from event E1
