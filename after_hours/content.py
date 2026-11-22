@@ -244,3 +244,17 @@ BASELINE_CALLBACKS = {  # authored callbacks, shown at the start of a visit if t
     ("jun", "lied_to"): "\"Back with another story?\"",
     ("nico", "kindness"): "\"You again. Thanks for earlier.\"",
 }
+
+# Player-facing hints (UI leads panel). Tell the player what each person might know, not the answer.
+LEAD_HINTS = {
+    "mara": "Saw who Rook left the bar with.",
+    "jun": "Knows what job Rook was on.",
+    "nico": "Might have seen Rook after midnight.",
+}
+FACT_CUES = {
+    "lied_to": "{name} knows you lied. That will cost you.",
+    "promised": "{name} will hold you to that promise.",
+    "kindness": "{name} noticed that.",
+    "flirted": "{name} noticed the flirting.",
+    "asked_openly": "People heard you asking about Rook out loud.",
+}

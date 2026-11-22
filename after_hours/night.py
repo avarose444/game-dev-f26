@@ -7,8 +7,8 @@ mode (the playtest baseline) they come from the authored menu in content.BASELIN
 
 from . import rules
 from .agent import take_turn
-from .content import (BASELINE, BASELINE_ASK, BASELINE_CALLBACKS, CLUES, ENDINGS, EVENTS, FALLBACK_LINES,
-                      FINALE, LOCATION_NAMES, NPC_LOCATIONS, OPENING_LINES, PERSONAS, SUGGESTED_REPLIES)
+from .content import (BASELINE, BASELINE_ASK, BASELINE_CALLBACKS, CLUES, ENDINGS, EVENTS, FACT_CUES, FALLBACK_LINES,
+                      FINALE, LEAD_HINTS, LOCATION_NAMES, NPC_LOCATIONS, OPENING_LINES, PERSONAS, SUGGESTED_REPLIES)
 from .state import SLOTS, Fact, GameState
 
 EXCHANGES_PER_VISIT = 6
@@ -31,6 +31,10 @@ class Night:
         self.ending: str | None = None
         self.feed: list[dict] = []              # messages produced by the last action
         self.history: list[dict] = []           # every message this night (to redraw the page)
+        self.met: set[str] = set()
+        self.used_suggestions: set[str] = set()
+        self.nudged: set[str] = set()
+        self.memory_cue_shown = False
 
     # ---------- helpers ----------
     def _say(self, kind: str, text: str, speaker: str | None = None) -> None:
@@ -65,6 +69,8 @@ class Night:
             self._say("narration", FINALE["text"])
             return self.feed
         self.npc = NPC_AT[location]
+        self.met.add(self.npc)
+        self.memory_cue_shown = False
         self.exchanges = 0
         self.state.conversation = []
         self.state.npcs[self.npc].conversation_delta = {"trust": 0, "warmth": 0}
@@ -102,6 +108,7 @@ class Night:
             self._say("event", f"{event['title']}: {event['text']}")
         else:
             self.phase = "talk"
+            self._nudge_if_ready()
 
     def current_event(self) -> dict | None:
         if self.phase != "event":
@@ -187,8 +194,12 @@ class Night:
         if self.phase != "talk":
             return []
         if self.mode == "agent":
-            return SUGGESTED_REPLIES[self.npc]
-        return [BASELINE_ASK[self.npc]] + [o[0] for o in BASELINE[self.npc]]
+            # Rotate: the "ask" line while the clue is still hidden, then lines not used yet.
+            ask = [] if self.state.npcs[self.npc].revealed_clue else [BASELINE_ASK[self.npc]]
+            pool = SUGGESTED_REPLIES[self.npc] + [o[0] for o in BASELINE[self.npc]]
+            fresh = [t for t in dict.fromkeys(pool) if t not in self.used_suggestions and t not in ask]
+            return ask + fresh[:3]
+        return [BASELINE_ASK[self.npc]] + [o[0] for o in BASELINE[self.npc] if o[0] not in self.used_suggestions]
 
     def say(self, text: str) -> list[dict]:
         """Agent mode: free text or a suggested reply."""
@@ -201,7 +212,8 @@ class Night:
             def model_fn(system, user):
                 raise RuntimeError("live call limit reached")
         self._say("player", text.strip()[:300])
-        before = (self.state.npcs[self.npc].next_memory_id, len(self.state.npcs[self.npc].facts))
+        self.used_suggestions.add(text.strip())
+        before = self._before()
         result = take_turn(self.state, self.npc, text, self.provider, model_fn=model_fn)
         if not over_budget:
             self.live_calls += result.attempts
@@ -223,8 +235,9 @@ class Night:
         if not 0 <= index < len(options):
             raise ValueError("No such option.")
         s, npc_id = self.state, self.npc
-        before = (s.npcs[npc_id].next_memory_id, len(s.npcs[npc_id].facts))
+        before = self._before()
         self._say("player", options[index])
+        self.used_suggestions.add(options[index])
         if index == 0:  # ask about Rook
             if "reveal_clue" in rules.legal_actions(s, npc_id)["actions"]:
                 self._say("npc", "A long pause. \"...Alright.\"", npc_id)
@@ -232,7 +245,7 @@ class Night:
             else:
                 self._say("npc", FALLBACK_LINES[npc_id][rules.band(s, npc_id)], npc_id)
         else:
-            text, tag, trust, warmth, reply = BASELINE[npc_id][index - 1]
+            text, tag, trust, warmth, reply = next(o for o in BASELINE[npc_id] if o[0] == options[index])
             if tag and not s.npcs[npc_id].has_fact(tag):
                 rules.add_fact(s, npc_id, Fact(tag, text[:60], text))
             rules.change_meters(s, npc_id, trust, warmth)
@@ -240,18 +253,56 @@ class Night:
         self._after_turn(before)
         return self.feed
 
-    def _after_turn(self, before: tuple[int, int]) -> None:
+    def _before(self) -> tuple[int, int, int, int]:
+        npc = self.state.npcs[self.npc]
+        return npc.next_memory_id, len(npc.facts), npc.trust, npc.warmth
+
+    def _after_turn(self, before: tuple[int, int, int, int]) -> None:
+        """Show what changed: trust and warmth ticks, new facts, and (once a visit) a memory cue."""
         npc = self.state.npcs[self.npc]
         name = PERSONAS[self.npc]["name"]
+        ticks = []
+        for label, delta in (("trust", npc.trust - before[2]), ("warmth", npc.warmth - before[3])):
+            if delta:
+                ticks.append(f"{label} {'+' if delta > 0 else ''}{delta}")
+        if ticks:
+            self._say("system", f"{name}: " + " · ".join(ticks))
         if len(npc.facts) > before[1]:
-            self._say("system", f"{name} will hold you to that.")
-        elif npc.next_memory_id > before[0]:
+            self._say("system", FACT_CUES[npc.facts[-1].tag].format(name=name))
+        elif npc.next_memory_id > before[0] and not self.memory_cue_shown:
+            self.memory_cue_shown = True
             self._say("system", f"{name} will remember that.")
         self._check_flirt_witnessed()
+        self._nudge_if_ready()
         self.exchanges += 1
         if self.exchanges >= EXCHANGES_PER_VISIT and self.phase == "talk":
             self._say("narration", "The hour's nearly up.")
             self._end_visit()
+
+    def _nudge_if_ready(self) -> None:
+        """Tell the player once when an NPC would share their clue if asked."""
+        npc_id = self.npc
+        if (npc_id and npc_id not in self.nudged and self.state.npcs[npc_id].revealed_clue is None
+                and "reveal_clue" in rules.legal_actions(self.state, npc_id)["actions"]):
+            self.nudged.add(npc_id)
+            self._say("system", f"{PERSONAS[npc_id]['name']} seems ready to talk. Ask about Rook.")
+
+    def leads(self) -> list[dict]:
+        out = []
+        for npc_id, npc in self.state.npcs.items():
+            if npc.revealed_clue or (npc_id == "mara" and "C1" in self.state.case_board):
+                status = "shared"
+            elif rules.clue_locked(self.state, npc_id):
+                status = "closed"
+            elif "reveal_clue" in rules.legal_actions(self.state, npc_id)["actions"]:
+                status = "ready"
+            else:
+                status = "met" if npc_id in self.met else "new"
+            out.append({"npc": npc_id, "name": PERSONAS[npc_id]["name"],
+                        "where": LOCATION_NAMES[NPC_LOCATIONS[npc_id]], "hint": LEAD_HINTS[npc_id],
+                        "trust": npc.trust, "warmth": npc.warmth,
+                        "needed": rules.clue_threshold(self.state, npc_id), "status": status})
+        return out
 
     def leave(self) -> list[dict]:
         self.feed = []
@@ -321,6 +372,7 @@ class Night:
             "case_board": [{"id": c, "title": CLUES[c]["title"], "text": CLUES[c]["line"]} for c in s.case_board],
             "credits": s.credits, "exchanges_left": EXCHANGES_PER_VISIT - self.exchanges,
             "meters": {n: {"trust": v.trust, "warmth": v.warmth} for n, v in s.npcs.items()},
+            "leads": self.leads(), "clues_needed": 2,
             "ending": {"id": self.ending, "title": ENDINGS[self.ending][0]} if self.ending else None,
             "dawn_cards": self.dawn_cards() if self.phase == "dawn" else [],
             "feed": self.feed,

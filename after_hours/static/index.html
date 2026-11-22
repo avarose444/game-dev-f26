@@ -44,6 +44,18 @@
   .clue { border-left: 3px solid var(--amber); padding: 6px 10px; margin-bottom: 8px; background: rgba(255,200,87,.06); border-radius: 0 6px 6px 0; }
   .clue b { color: var(--amber); font-size: 13px; } .clue p { margin: 2px 0 0; font-size: 13px; color: #d9d2bb; }
   .empty { color: var(--muted); font-size: 13px; font-style: italic; }
+  .lead { border: 1px solid var(--line); border-left: 3px solid var(--c); border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 8px; background: var(--panel); }
+  .lead.ready { box-shadow: 0 0 0 1px var(--c), 0 0 18px -6px var(--c); }
+  .lead .top { display: flex; justify-content: space-between; gap: 6px; font-size: 13px; }
+  .lead .top b { color: var(--c); } .lead .top span { color: var(--muted); font-size: 11px; }
+  .lead p { margin: 3px 0 6px; font-size: 12px; color: #cfcbe0; }
+  .lead .status { font-size: 12px; font-weight: 600; margin-top: 4px; }
+  .lead .status.ready { color: var(--amber); } .lead .status.shared { color: var(--green); } .lead .status.closed { color: #ff7b7b; }
+  .tbar { height: 6px; background: var(--line); border-radius: 3px; position: relative; }
+  .tbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--cyan); }
+  .tbar u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--amber); }
+  .howto { align-self: stretch; max-width: none; border: 1px solid var(--cyan); background: rgba(46,230,255,.05); border-radius: 12px; padding: 14px 16px; }
+  .howto b { color: var(--cyan); letter-spacing: .1em; font-size: 12px; } .howto ol { margin: 8px 0 0; padding-left: 20px; } .howto li { margin: 4px 0; }
   .meter { display: grid; grid-template-columns: 46px 1fr; gap: 2px 8px; font-size: 12px; margin-bottom: 8px; align-items: center; }
   .meter .name { font-weight: 700; grid-row: span 2; color: var(--c); }
   .bar { height: 6px; background: var(--line); border-radius: 3px; position: relative; }
@@ -81,7 +93,7 @@
   @media (max-width: 760px) {
     main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     aside { flex-direction: row; overflow-x: auto; max-height: 180px; } .portrait { width: 90px; font-size: 36px; }
-    aside > div { min-width: 200px; } .msg { max-width: 92%; }
+    aside > div { min-width: 220px; } .msg { max-width: 92%; }
   }
 </style>
 </head>
@@ -102,8 +114,8 @@
         <div class="portrait" id="portrait">?</div>
         <div class="where" id="where">Kessler block</div>
       </div>
-      <div><h2>CASE BOARD</h2><div id="board"></div></div>
-      <div><h2>PEOPLE</h2><div id="meters"></div></div>
+      <div><h2 id="board-title">CASE BOARD</h2><div id="board"></div></div>
+      <div><h2>LEADS</h2><div id="leads"></div></div>
     </aside>
     <section class="stage">
       <div class="feed" id="feed"></div>
@@ -181,13 +193,16 @@ function render() {
   $("board").replaceChildren(...(snap.case_board.length ? snap.case_board.map((c) =>
     el("div", { class: "clue" }, el("b", {}, c.title), el("p", {}, c.text))) : [el("div", { class: "empty" }, "No clues yet. Two will lead you to Rook.")]));
 
-  $("meters").replaceChildren(...Object.entries(snap.meters).map(([npc, m]) => {
-    const bar = (v, color) => { const w = Math.abs(v) * 10; return el("div", { class: "bar" },
-      el("i", { style: `background:${color};width:${w}%;${v < 0 ? `left:${50 - w}%` : ""}` })); };
-    const row = el("div", { class: "meter", style: `--c:${COLORS[npc]}` }, el("span", { class: "name" }, NAMES[npc]),
-      el("div", { title: `Trust ${m.trust}` }, bar(m.trust, "var(--cyan)")), el("div", { title: `Warmth ${m.warmth}` }, bar(m.warmth, "var(--pink)")));
-    return row;
-  }), el("div", { class: "hint" }, "Top bar: trust · bottom bar: warmth"));
+  $("board-title").textContent = `CASE BOARD · ${Math.min(snap.case_board.length, snap.clues_needed)}/${snap.clues_needed} CLUES`;
+  const STATUS = { new: () => "Haven't met yet", met: (l) => `Trust ${l.trust} of ${l.needed} needed`,
+    ready: () => "Ready to talk. Ask about Rook!", shared: () => "✓ Told you what they know", closed: () => "Won't talk to you now" };
+  $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `lead ${l.status}`, style: `--c:${COLORS[l.npc]}` },
+    el("div", { class: "top" }, el("b", {}, l.name), el("span", {}, l.where)),
+    el("p", {}, l.hint),
+    el("div", { class: "tbar", title: `Trust ${l.trust} (needs ${l.needed})` },
+      el("i", { style: `width:${Math.max(0, l.trust) * 20}%` }), el("u", { style: `left:${l.needed * 20}%` })),
+    el("div", { class: `status ${l.status}` }, STATUS[l.status](l)))),
+    el("div", { class: "hint" }, "Blue bar: trust. Gold line: what they need before they'll share."));
 
   const panel = $("panel"); panel.replaceChildren();
   if (snap.phase === "choose_location") {
@@ -197,11 +212,12 @@ function render() {
     panel.append(el("div", { class: "choices" }, ...Object.entries(snap.event.choices).map(([k, label]) =>
       el("button", { onclick: () => api("event", { choice: k }) }, label))));
   } else if (snap.phase === "talk") {
+    panel.append(el("div", { class: "hint" }, snap.mode === "agent" ? "Ideas (or type your own below):" : "Choose what to say:"));
     const opts = el("div", { class: "choices small" }, ...snap.options.map((o, j) =>
       el("button", { onclick: () => snap.mode === "agent" ? api("say", { text: o }) : api("option", { index: j }) }, o)));
     panel.append(opts);
     if (snap.mode === "agent") {
-      const input = el("input", { type: "text", maxlength: "300", placeholder: `Say something to ${snap.npc_name}…` });
+      const input = el("input", { type: "text", maxlength: "300", placeholder: `Type anything to ${snap.npc_name}…` });
       const send = () => { const t = input.value.trim(); if (t) api("say", { text: t }); };
       input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
       panel.append(el("div", { class: "row" }, input, el("button", { onclick: send }, "Say")));
@@ -221,17 +237,27 @@ function render() {
       if (!items.length) items.push("Barely remembers you.");
       return el("div", { class: "card", style: `--c:${COLORS[npc]}` }, el("b", {}, c.npc),
         el("div", { class: "hint" }, `Trust ${c.trust} · Warmth ${c.warmth}`), el("ul", {}, ...items.map((t) => el("li", {}, t))));
-    })), el("div", { class: "row" }, el("button", { onclick: () => { $("feed").replaceChildren(el("div", { class: "msg narration" }, INTRO)); api("new", { mode: snap.mode }); } }, "Play another night")));
+    })), el("div", { class: "row" }, el("button", { onclick: () => { $("feed").replaceChildren(el("div", { class: "msg narration" }, INTRO), howTo()); api("new", { mode: snap.mode }); } }, "Play another night")));
   }
   requestAnimationFrame(() => { $("feed").scrollTop = $("feed").scrollHeight; });
 }
 
 const INTRO = `Rook didn't come home. Their last message: "At the Lantern. Tell no one." The checkpoint opens at 4 a.m.`;
 $("restart").addEventListener("click", () => {
-  if (confirm("Start a new night? This one will be lost.")) { $("feed").replaceChildren(el("div", { class: "msg narration" }, INTRO)); api("new", { mode: snap ? snap.mode : undefined }); }
+  if (confirm("Start a new night? This one will be lost.")) { $("feed").replaceChildren(el("div", { class: "msg narration" }, INTRO), howTo()); api("new", { mode: snap ? snap.mode : undefined }); }
 });
+function howTo() {
+  const typing = snap && snap.mode === "agent";
+  return el("div", { class: "msg howto" }, el("b", {}, "HOW TO PLAY"), el("ol", {},
+    el("li", {}, "Find Rook before 4 a.m. Collect 2 clues and Rook's hiding place opens at 3 a.m."),
+    el("li", {}, "Each hour, pick a place and talk to whoever is there. Each person knows one piece (see Leads)."),
+    el("li", {}, "They'll only share once they trust you. Be honest, be kind, keep promises. Lies and shouting about Rook cost you."),
+    el("li", {}, typing ? "Type anything you want. The suggestions are just ideas. They remember what you say." :
+      "Pick what to say from the menu. Watch for events: some are shortcuts.")));
+}
 $("feed").append(el("div", { class: "msg narration" }, INTRO));
-api("state");
+api("state").then(() => { if (snap && snap.slot === "midnight" && snap.phase === "choose_location") {
+  $("feed").append(howTo()); } });
 </script>
 </body>
 </html>

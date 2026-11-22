@@ -47,7 +47,7 @@ class NightFlowTests(unittest.TestCase):
         night = scripted_night()
         night.visit("rooftop")
         for _ in range(6):
-            night.choose_option(1)
+            night.choose_option(0)
         self.assertEqual(night.state.slot, "1am")
         self.assertEqual(night.phase, "choose_location")
 
@@ -176,6 +176,37 @@ class EndingTests(unittest.TestCase):
         for _ in range(4):
             skip_slot(night, "rooftop")
         self.assertEqual(night.ending, "morning_after")
+
+
+class GuidanceTests(unittest.TestCase):
+    def test_used_menu_options_disappear(self):
+        night = scripted_night()
+        night.visit("rooftop")
+        promise = option(night, "I'll get back")
+        night.choose_option(promise)
+        self.assertFalse(any(o.startswith("I'll get back") for o in night.options()))
+
+    def test_trust_ticks_and_fact_cue_are_shown(self):
+        night = scripted_night()
+        night.visit("rooftop")
+        feed = night.choose_option(option(night, "I'll get back"))
+        texts = [m["text"] for m in feed if m["kind"] == "system"]
+        self.assertIn("Jun: trust +2", texts)
+        self.assertIn("Jun will hold you to that promise.", texts)
+
+    def test_nudge_when_ready_to_talk(self):
+        night = scripted_night()
+        night.visit("lantern")
+        feed = night.choose_event("cover")
+        self.assertIn("Mara seems ready to talk. Ask about Rook.", [m["text"] for m in feed])
+        self.assertEqual(next(l for l in night.leads() if l["npc"] == "mara")["status"], "ready")
+
+    def test_agent_suggestions_rotate(self):
+        night = Night("agent", model_fn=lambda s, u: (_ for _ in ()).throw(TimeoutError()))
+        night.visit("rooftop")
+        first = night.options()
+        night.say(first[1])
+        self.assertNotIn(first[1], night.options())
 
 
 class AgentModeTests(unittest.TestCase):
