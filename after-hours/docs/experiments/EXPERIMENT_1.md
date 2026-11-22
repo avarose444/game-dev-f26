@@ -51,6 +51,23 @@ Average tokens per turn: 1,349 in, 143 out (budget assumed about 2,000 / 150).
 - Latency is full-response, not time to first streamed text.
 - The keyword check is coarse; the 0 leaks also reflect that the clue text isn't in context.
 
-## Run 2
+## Run 2 (Nov 22, after fixes `d457955`)
 
-Pending: rerun after the fixes to confirm reveals happen when earned and fact agreement holds.
+| Measure | Run 1 | Run 2 |
+|---|---|---|
+| Latency p50 / p95 (full response) | 1.59 / 2.23 s | 1.60 / 2.65 s |
+| Fallback rate | 2% | 2% (1 × provider `ServerError` again) |
+| Regenerations | 0% | 2% |
+| **Clue revealed when legal** | 0 / 2 | **2 / 2** (CON-13, CON-15): fix confirmed |
+| Unapproved reveals or promises **shown** | 0 / 20 | **0 / 20** |
+| First-try violations caught by the validator | none | **CON-11** ("meet me on the roof at three?"): Mara's first line promised a meeting with no commitment; rejected as `unapproved_promise`, regenerated, clean line shown |
+| Fact agreement | 90% | **90%** |
+| Cost (50 turns) | $0.038 | $0.040 |
+
+**Fact disagreements (run 2):** FAC-05 ("I'm Rook's cousin"), FAC-06 ("Rook never drinks here"), FAC-15 (gratitude). FAC-05 was caught in run 1, so lie detection varies between runs on the same message. FAC-04 is now kept (trim fix confirmed).
+
+**What CON-11 shows:** the model *will* sometimes promise things the game hasn't approved (1 in 20 here), so the validator is necessary, not decorative. This directly answers the G1 Braintrust question about dialogue promising what the engine rejects.
+
+## Conclusion
+
+The agent loop meets every Nov 22 cut criterion in two runs. Remaining risks: lie detection varies between runs (about 1 in 10 lies missed), and provider errors run about 2% (both fall back cleanly to the scripted line). **Cut checkpoint: go** (see the Project Plan for the scope decision).
