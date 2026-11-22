@@ -1,6 +1,6 @@
 {
   "schema_version": "course-1",
-  "status": "proposed (v0.2, revised after G1 Braintrust feedback); not implemented",
+  "status": "v0.2: Experiment 1 build implemented for Mara (after_hours/); live measurements pending",
   "purpose": "Voice one After Hours NPC per turn in a one-night mystery: an in-character line plus a proposed emotion, action (including reveal_clue and commit), relationship change, memory note and memory fact, all validated by the game. Dialogue may not reveal or promise anything the game has not approved.",
   "tools_available": [],
   "prohibited_actions": [
@@ -36,7 +36,7 @@
     ],
     "live_model": "Explicit COURSE_MODEL; planned claude-haiku-5-5 (decide by 2026-11-18); resolved identifier logged"
   },
-  "prompts_or_system_instructions": "npc_agent/prompts/system.md (to be written)",
+  "prompts_or_system_instructions": "after_hours/agent.py SYSTEM; persona and clue content in after_hours/content.py",
   "named_failure_modes": [
     "timeout or provider error",
     "invalid JSON",
@@ -49,7 +49,7 @@
     "persona break or prompt injection",
     "generic, unresponsive replies"
   ],
-  "evaluation_cases": "tests/test_validator.py, tests/test_consistency.py, tests/test_fallback.py (offline); evals/consistency/, evals/facts/, evals/adversarial/ and evals/callbacks/ (live, budgeted)",
+  "evaluation_cases": "tests/test_after_hours.py (offline, 33 tests); after_hours/evals/cases.json run by python -m after_hours.experiment --provider <live> (20 consistency + 30 labeled fact cases)",
   "logging_policy": "Per turn: model ID, latency, token usage, validator result, fallback flag, action. Player text only in consented playtest builds under an anonymous ID. No credentials.",
   "human_override_points": [
     "leave conversation or quit",
@@ -58,7 +58,7 @@
   ],
   "test_command": "python -m unittest discover -s tests -v",
   "ci_workflow_path": ".github/workflows/setup-check.yml",
-  "native_artifact": "npc_agent/agent.py: function-calling interface with validated structured output",
+  "native_artifact": "after_hours/agent.py: function-calling interface with validated structured output (validator: after_hours/validator.py)",
   "limits": {
     "player_text_characters": 300,
     "line_characters": 280,
