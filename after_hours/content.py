@@ -26,7 +26,7 @@ PERSONAS = {
 # can become a lied_to fact (validator rule 5 requires the agent to name which).
 KNOWN_FACTS = {
     "mara": {
-        "K1": "Rook was drinking at the Lantern last night until about 11:30.",
+        "K1": "Rook was drinking at the Lantern last night. (When and how Rook left is part of what you're holding back.)",
         "K2": "Rook has an open tab here and owes Mara 40 credits.",
         "K3": "Rook has no family in the city.",
         "K4": "Rook's courier jobs come through Jun.",
@@ -42,7 +42,7 @@ CLUES = {
                 "He didn't look like a friend.",
         # Deterministic consistency check (validator rule 3): if a line contains
         # one of these and no reveal is happening, the line is rejected.
-        "keywords": ["11:30", "eleven thirty", "half eleven", "grey jacket", "gray jacket",
+        "keywords": ["11:30", "1130", "eleven thirty", "half eleven", "half past eleven", "grey jacket", "gray jacket",
                      "corp jacket", "paid rook's tab", "paid the tab", "paid in cash"],
     },
 }

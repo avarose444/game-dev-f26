@@ -115,7 +115,8 @@ class ConsistencyTests(unittest.TestCase):
         self.assertEqual(ctx.exception.kind, kind)
 
     def test_clue_keywords_without_reveal(self):
-        for line in ("He left at 11:30, that's all.", "Some guy in a grey jacket.",
+        for line in ("He left at 11:30, that's all.", "Left around eleven-thirty. That's all I've got, kid.",
+                     "Some guy in a grey jacket.",
                      "Somebody paid the tab, if you must know."):
             self.assertBlocked(line)
 

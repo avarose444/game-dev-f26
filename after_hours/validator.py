@@ -67,7 +67,9 @@ class Rejection(ValueError):
 
 
 def _norm(text: str) -> str:
-    return re.sub(r"\s+", " ", text.lower()).strip()
+    """Lowercase, treat hyphens and dashes as spaces, collapse whitespace."""
+    text = re.sub(r"[-\u2010-\u2015]", " ", text.lower())
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def check_line_matches_action(npc_id: str, line: str, action: str) -> None:
