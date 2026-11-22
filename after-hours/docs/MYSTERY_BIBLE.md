@@ -1,6 +1,6 @@
 # After Hours — Mystery Bible
 
-**Status:** DRAFT, November 22, 2026. Written by a production agent (Narrative role) from GDD v0.2; **every character, clue and ending needs my approval as Creative Director before it goes into the game.** Mark changes inline or tell the Narrative agent.
+**Status:** **APPROVED as drafted by me (Ava) as Creative Director, November 22, 2026.** Drafted by a production agent (Narrative role) from GDD v0.2. Open questions in Section 10 are accepted with the draft's current answers.
 **Rule for the agent:** nothing in Sections 1 and 6 goes into an NPC's context. NPCs get only their own persona card, known facts, and a clue *after* the game approves `reveal_clue`.
 
 ---
@@ -164,8 +164,8 @@ About three authored callbacks per NPC (e.g. after `lied_to:mara`: "Still don't 
 
 | # | Question | My answer |
 |---|---|---|
-| 1 | Are the names and voices right? (Sallow, Vesk, Veyra Dynamics, Jun's deal-talk, Nico's quietness) | |
-| 2 | Is it okay that Nico is the moral center and Jun is the morally gray one? | |
-| 3 | Should throwing a punch in E2 close the Lantern, or is that too harsh for a 4-slot night? | |
-| 4 | Should "Paid in full" feel like a win (you got rich) or a loss (you lost your friend)? Right now it's bittersweet. | |
-| 5 | Does Rook need a pronoun choice, or stay "they"? | |
+| 1 | Are the names and voices right? (Sallow, Vesk, Veyra Dynamics, Jun's deal-talk, Nico's quietness) | Keep as drafted (Nov 22). |
+| 2 | Is it okay that Nico is the moral center and Jun is the morally gray one? | Keep as drafted (Nov 22). |
+| 3 | Should throwing a punch in E2 close the Lantern, or is that too harsh for a 4-slot night? | Keep as drafted (Nov 22). |
+| 4 | Should "Paid in full" feel like a win (you got rich) or a loss (you lost your friend)? Right now it's bittersweet. | Keep as drafted (Nov 22). |
+| 5 | Does Rook need a pronoun choice, or stay "they"? | Keep as drafted (Nov 22). |
