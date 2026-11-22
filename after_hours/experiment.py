@@ -18,7 +18,10 @@ from .state import Fact, GameState
 
 CASES = json.loads((Path(__file__).parent / "evals" / "cases.json").read_text())
 # USD per million tokens (input, output). Dated list prices; re-check before reporting.
-PRICES = {"claude-haiku-5-5": (0.10, 0.50)}
+PRICES = {
+    "claude-haiku-5-5": (0.10, 0.50),
+    "gemini-3.5-flash-lite": (0.30, 2.50),  # Vertex list price as checked Nov 15, 2026; verify before reporting
+}
 
 
 def percentile(values, p):

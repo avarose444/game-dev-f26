@@ -17,7 +17,7 @@ from .validator import SCHEMA, Rejection, validate
 LIVE_PROVIDERS = ("anthropic", "vertex", "openai")
 TIMEOUT_SECONDS = 6.0
 ATTEMPTS = 2            # one call plus one regeneration
-MAX_OUTPUT_TOKENS = 400
+MAX_OUTPUT_TOKENS = 800  # Gemini counts thinking tokens here; too low truncates the JSON
 MAX_PLAYER_CHARS = 300
 
 SYSTEM = """You voice one character in After Hours, a one-night noir mystery game.
@@ -115,6 +115,8 @@ def call_model(provider: str, system: str, user: str) -> tuple[str, int, int, st
                     response_json_schema=SCHEMA, max_output_tokens=MAX_OUTPUT_TOKENS,
                     automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)),
             )
+        if not response.candidates or response.candidates[0].finish_reason != types.FinishReason.STOP:
+            raise RuntimeError("Gemini response did not finish normally (e.g. truncated).")
         u = response.usage_metadata
         return (response.text, u.prompt_token_count or 0, u.candidates_token_count or 0,
                 response.model_version or model)
