@@ -35,7 +35,7 @@ The timeline is short: 12 days including Thanksgiving. So **scope decisions come
 | 4 | Thu Nov 19 | Write two Braintrust replies; revise GDD and Configuration Document from my Braintrust feedback | Me, Producer *(agent)* | — | Posted; v0.2 docs pushed |
 | 5 | Fri Nov 20 | **Decide:** engine and UI stack (simplest option that runs in a browser) | Me | 3 | Recorded in the GDD |
 | 6 | Fri Nov 20–Sat 21 | **Mystery bible:** truth, clues C1–C3 with keyword lists, events E1–E5, endings, plus a second truth variant for the two-mode playtest. Adversarial suite (20 cases); Mara's scripted baseline tree | Narrative, QA *(agents)*, me | 3 | I approve the bible; every relationship band has fallback lines; suite runs with failures recorded |
-| 7 | **Sun Nov 22** | **Cut checkpoint** (see triggers below) | Me | 3, 6 | Go / cut decision recorded |
+| 7 | **Sun Nov 22** | **Cut checkpoint** (see triggers below) | Me | 3, 6 | **Done.** Decision recorded below |
 | 8 | Sun Nov 22–Tue 24 | Four-slot night, character setup, case board, events E1–E3 (E4–E5 if on schedule), Jun and Nico personas and baselines, facts and clue gating, mode toggle, four endings and Dawn cards, trace logging | Tech Lead, Narrative *(agents)* | 5, 6, 7 | One full night plays through in both modes and each ending is reachable |
 | 9 | Mon Nov 23–Tue 24 | Read G1 feedback; move the plan to Asana; full Risk Register | Producer *(agent)*, me | 1, feedback | Asana tasks have owners and acceptance criteria |
 | 10 | Wed Nov 25 | Internal play-through, then an independent QA review | QA *(agent)*, me | 8 | No blocking findings open |
@@ -48,11 +48,21 @@ After G2/G3, the scope-lock plan (G3) sets the Alpha / Beta / Gold work for the 
 ## Cut triggers (fallbacks with a trigger and an action)
 
 - If Experiment 1 shows **p95 above 4 s**, or the validator rejects **more than 10%** of live turns, by **Nov 22**: switch to suggested replies only, and reduce to **two NPCs**.
-- If Mara's baseline tree or the mystery bible is not done by **Nov 22**: drop events E4–E5.
+- If Mara's baseline tree or the mystery bible is not done by **Nov 22**: drop events E4–E5. *(Fired Nov 22; overridden, see result below. Backstop: Nov 24.)*
 - If `evals/facts/` agreement is below **85%** by Nov 22: create facts only from tagged suggested replies in both modes, and test agent mode on dialogue and callbacks only (this weakens the hypothesis; record it).
 - If two NPCs aren't playable by **Nov 24**: drop Nico; Jun holds C3.
 - If one full night doesn't play through in both modes by **Nov 25**: test with Mara alone in both modes on Thanksgiving, and keep the rest for G4.
 - If spending reaches **$5** before the playtests: freeze live evaluation and rerun only failed cases.
+
+## Cut checkpoint result (Nov 22)
+
+**Evidence:** Experiment 1 run 1 ([write-up](experiments/EXPERIMENT_1.md)): p95 2.23 s, fallback 2%, 0 rejections, 0 unapproved reveals or promises, 90% fact agreement, about $0.024 per session. No technical trigger fired.
+
+**Schedule trigger fired:** the mystery bible and Mara's baseline tree were not done by Nov 22 (Experiment 1 itself ran 2 days late), which under the rule above means dropping E4–E5.
+
+**[DECISION, Nov 22, Creative Director]: keep everything** (three NPCs and events E1–E5), overriding the schedule trigger. The Producer role recommended cutting E4–E5; I chose to keep them because the experiment showed the agent loop works, which was the main risk.
+
+**Backstop:** if E4–E5 aren't playable in the full night by **Tue Nov 24**, they're cut then, with no further review, so the Nov 25 play-through and Thanksgiving playtest stay on schedule.
 
 ## Risk Profile (summary; the full Register comes at G2/G3)
 
