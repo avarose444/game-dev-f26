@@ -30,10 +30,13 @@ class Night:
         self.live_calls = 0
         self.ending: str | None = None
         self.feed: list[dict] = []              # messages produced by the last action
+        self.history: list[dict] = []           # every message this night (to redraw the page)
 
     # ---------- helpers ----------
     def _say(self, kind: str, text: str, speaker: str | None = None) -> None:
-        self.feed.append({"kind": kind, "speaker": speaker, "text": text})
+        message = {"kind": kind, "speaker": speaker, "text": text}
+        self.feed.append(message)
+        self.history.append(message)
 
     @property
     def slot_index(self) -> int:
@@ -310,6 +313,7 @@ class Night:
         s = self.state
         return {
             "mode": self.mode, "phase": self.phase, "slot": s.slot, "location": s.location,
+            "location_name": LOCATION_NAMES.get(s.location, s.location),
             "npc": self.npc, "npc_name": PERSONAS[self.npc]["name"] if self.npc else None,
             "locations": [{"id": loc, "name": LOCATION_NAMES[loc]} for loc in self.locations()],
             "event": self.current_event(), "options": self.options(),
