@@ -229,6 +229,19 @@ class FallbackTests(unittest.TestCase):
         self.assertEqual(result.rejections, ["unapproved_reveal"])
         self.assertIn("rejected", seen[1])
 
+    def test_persona_stops_holding_back_once_reveal_is_legal(self):
+        from after_hours.agent import READY_TO_SHARE, build_context
+        state = GameState()
+        self.assertNotEqual(build_context(state, "mara", "hi")["you"]["holding_back"], READY_TO_SHARE)
+        state.npcs["mara"].trust = 3
+        self.assertEqual(build_context(state, "mara", "hi")["you"]["holding_back"], READY_TO_SHARE)
+
+    def test_long_fact_detail_is_trimmed_not_dropped(self):
+        fact = {"tag": "lied_to", "detail": "x" * 90, "evidence": "I'm Rook's sister", "contradicts": "K3"}
+        out = validate(raw(memory_fact=fact), "mara", LEGAL_BASIC, "I'm Rook's sister.", set())
+        self.assertEqual(out["memory_fact"]["tag"], "lied_to")
+        self.assertEqual(len(out["memory_fact"]["detail"]), 60)
+
     def test_clue_text_not_in_context_until_revealed(self):
         state = GameState()
         seen = []

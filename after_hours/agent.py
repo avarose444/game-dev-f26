@@ -53,10 +53,22 @@ class TurnResult:
     model: str
 
 
+READY_TO_SHARE = ("They've earned it. If they ask about Rook's night or who Rook was with, choose "
+                  "reveal_clue and lead into it in one short line; the game will show what you saw.")
+
+
+def persona_for(state: GameState, npc_id: str) -> dict:
+    """The persona card, with 'holding back' swapped out once the clue is legal to reveal."""
+    persona = dict(PERSONAS[npc_id])
+    if "reveal_clue" in rules.legal_actions(state, npc_id)["actions"]:
+        persona["holding_back"] = READY_TO_SHARE
+    return persona
+
+
 def build_context(state: GameState, npc_id: str, player_message: str) -> dict:
     npc = state.npcs[npc_id]
     context = {
-        "you": PERSONAS[npc_id],
+        "you": persona_for(state, npc_id),
         "known_facts": KNOWN_FACTS[npc_id],
         "meters": {"trust": npc.trust, "warmth": npc.warmth},
         "memories": npc.memories,

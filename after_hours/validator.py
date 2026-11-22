@@ -134,10 +134,10 @@ def validate(raw: str, npc_id: str, legal: dict, player_message: str, memory_ids
         reason = None
         if not fact["evidence"].strip() or _norm(fact["evidence"]) not in _norm(player_message):
             reason = "no_evidence"
-        elif len(fact["detail"]) > MAX_DETAIL:
-            reason = "detail_too_long"
         elif fact["tag"] == "lied_to" and fact["contradicts"] not in KNOWN_FACTS.get(npc_id, {}):
             reason = "lie_without_known_fact"
+        if not reason:
+            fact["detail"] = fact["detail"][:MAX_DETAIL]  # a long description isn't a wrong fact; trim it
         if reason:
             data["fact_dropped"] = reason
             data["memory_fact"] = {"tag": "none", "detail": "", "evidence": "", "contradicts": ""}

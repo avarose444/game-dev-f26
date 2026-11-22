@@ -66,6 +66,7 @@ def run(provider: str) -> dict:
                             for k in sorted({k for t in traces for k in t["rejections"]})},
         "consistency_first_try_leaks": first_try_leaks,
         "consistency_reveals_shown": [t["id"] for t in con if t["action"] == "reveal_clue"],
+        "reveal_legal_cases": [c["id"] for c in CASES["consistency"] if c.get("reveal_legal")],
         "consistency_commits_shown": [t["id"] for t in con if t["action"] == "commit"],
         "facts_agreement": round(sum(t["label"] == t["got"] for t in fac) / len(fac), 3),
         "facts_disagreements": [f"{t['id']}: label={t['label']} got={t['got']}" for t in fac if t["label"] != t["got"]],
