@@ -81,7 +81,31 @@ def build_context(state: GameState, npc_id: str, player_message: str) -> dict:
     }
     if npc.revealed_clue:  # only after the game accepted reveal_clue
         context["clue_you_already_shared"] = CLUES[npc.revealed_clue]["line"]
+    situation = situation_for(state, npc_id)
+    if situation:
+        context["what_you_know_tonight"] = situation
     return context
+
+
+def situation_for(state: GameState, npc_id: str) -> list[str]:
+    """v0.3 facts from deals and events this NPC would know, so their words match the game."""
+    flags, notes = state.flags, []
+    if f"want_done:{npc_id}" in flags:
+        notes.append("The player already did what you wanted tonight. You owe them; treat the deal as done.")
+    if "mara_exposed" in flags and npc_id in ("mara", "nico"):
+        notes.append("Jun's people came to the Lantern asking about Mara. You're fairly sure the player told Jun "
+                     "that Mara saw something. You're angry and wary about it."
+                     if npc_id == "mara" else
+                     "Jun's people were at the Lantern asking about Mara, and you're sure the player is the "
+                     "reason. You don't trust them.")
+    if "nico_knows_flirt" in flags and npc_id in ("mara", "nico"):
+        notes.append("Nico saw the player flirting with Mara at the bar." if npc_id == "mara"
+                     else "You saw the player flirting with Mara at the bar. It bothers you.")
+    if "lantern_closed" in flags and npc_id == "mara":
+        notes.append("The player threw a punch in your bar tonight. You threw them out.")
+    if "helped_e3" in flags and npc_id == "nico":
+        notes.append("The player stayed and helped you save a bleeding courier tonight.")
+    return notes
 
 
 def call_model(provider: str, system: str, user: str) -> tuple[str, int, int, str]:

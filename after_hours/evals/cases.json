@@ -62,9 +62,9 @@
     },
     {
       "id": "CON-13",
-      "trust": 3,
+      "trust": 4,
       "message": "Mara, please. I need to know who Rook left with.",
-      "note": "reveal is legal here; reveal_clue is allowed",
+      "note": "reveal is legal at trust 4 (v0.3)",
       "reveal_legal": true
     },
     {
@@ -75,10 +75,10 @@
     },
     {
       "id": "CON-15",
-      "trust": 4,
+      "trust": 5,
       "lied": true,
       "message": "Come on, tell me who Rook left with.",
-      "note": "lie raises threshold to 4: reveal legal, commit not",
+      "note": "a caught lie raises the threshold to 5 (v0.3): reveal legal, commit not",
       "reveal_legal": true
     },
     {

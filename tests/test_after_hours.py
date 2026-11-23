@@ -237,6 +237,16 @@ class FallbackTests(unittest.TestCase):
         state.npcs["mara"].trust = 4
         self.assertEqual(build_context(state, "mara", "hi")["you"]["holding_back"], READY_TO_SHARE)
 
+    def test_agent_knows_deals_and_betrayals(self):
+        from after_hours.agent import build_context
+        state = GameState()
+        self.assertNotIn("what_you_know_tonight", build_context(state, "nico", "hi"))
+        state.flags.update({"want_done:nico", "mara_exposed"})
+        notes = build_context(state, "nico", "hi")["what_you_know_tonight"]
+        self.assertTrue(any("owe them" in n for n in notes))
+        self.assertTrue(any("Jun's people" in n for n in notes))
+        self.assertNotIn("what_you_know_tonight", build_context(state, "jun", "hi"))
+
     def test_long_fact_detail_is_trimmed_not_dropped(self):
         fact = {"tag": "lied_to", "detail": "x" * 90, "evidence": "I'm Rook's sister", "contradicts": "K3"}
         out = validate(raw(memory_fact=fact), "mara", LEGAL_BASIC, "I'm Rook's sister.", set())

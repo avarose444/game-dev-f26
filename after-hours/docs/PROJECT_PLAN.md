@@ -36,7 +36,7 @@ The timeline is short: 12 days including Thanksgiving. So **scope decisions come
 | 5 | Fri Nov 20 | **Decide:** engine and UI stack (simplest option that runs in a browser) | Me | 3 | Recorded in the GDD |
 | 6 | Fri Nov 20–Sat 21 | **Mystery bible:** truth, clues C1–C3 with keyword lists, events E1–E5, endings, plus a second truth variant for the two-mode playtest. Adversarial suite (20 cases); Mara's scripted baseline tree | Narrative, QA *(agents)*, me | 3 | I approve the bible; every relationship band has fallback lines; suite runs with failures recorded |
 | 7 | **Sun Nov 22** | **Cut checkpoint** (see triggers below) | Me | 3, 6 | **Done.** Decision recorded below |
-| 8 | Sun Nov 22–Tue 24 | Four-slot night, character setup, case board, events E1–E3 (E4–E5 if on schedule), Jun and Nico personas and baselines, facts and clue gating, mode toggle, four endings and Dawn cards, trace logging | Tech Lead, Narrative *(agents)* | 5, 6, 7 | One full night plays through in both modes and each ending is reachable |
+| 8 | Sun Nov 22 | **Done Nov 22.** Four-slot night, character setup, case board, events E1–E3 (E4–E5 if on schedule), Jun and Nico personas and baselines, facts and clue gating, mode toggle, four endings and Dawn cards, trace logging | Tech Lead, Narrative *(agents)* | 5, 6, 7 | One full night plays through in both modes and each ending is reachable |
 | 9 | Mon Nov 23–Tue 24 | Read G1 feedback; move the plan to Asana; full Risk Register | Producer *(agent)*, me | 1, feedback | Asana tasks have owners and acceptance criteria |
 | 10 | Wed Nov 25 | Internal play-through, then an independent QA review | QA *(agent)*, me | 8 | No blocking findings open |
 | 11 | Thu Nov 26–Fri 27 | **First external playtest** (at least one player, both modes), plus a BI summary of traces | Me, BI *(agent)* | 10 | Playtest log entry following reader Section 5.9; latency, cost and fallback rate reported |
@@ -63,6 +63,23 @@ After G2/G3, the scope-lock plan (G3) sets the Alpha / Beta / Gold work for the 
 **[DECISION, Nov 22, Creative Director]: keep everything** (three NPCs and events E1–E5), overriding the schedule trigger. The Producer role recommended cutting E4–E5; I chose to keep them because the experiment showed the agent loop works, which was the main risk.
 
 **Backstop:** if E4–E5 aren't playable in the full night by **Tue Nov 24**, they're cut then, with no further review, so the Nov 25 play-through and Thanksgiving playtest stay on schedule.
+
+## Scope lock (Nov 23) and the last five days
+
+**What happened Nov 22:** the full night was built, then redesigned after my own play-through found it not fun (v0.3: wants and deals, deduction, Sallow's hunt; GDD Section 6A), then given its final look (neon-deco UI, ambient sound, Rook's phone). That was the right call for the hypothesis and the playtest, but it is the last design change before G2/G3.
+
+**[DECISION, Nov 23]: feature freeze.** From Nov 23 only bug fixes, Variant B, agent-mode fixes, docs and the playtest. No new mechanics, events, characters or UI features until after the G2/G3 review.
+
+| # | Dates | Task | Acceptance criteria |
+|---|---|---|---|
+| 13 | Mon Nov 23 | **Agent-mode check against v0.3** (agent context knows deals and the Mara betrayal; Experiment 1 rerun with updated thresholds; one full night in agent mode with Vertex) | Experiment rerun passes Nov 22 criteria; no blocking bugs in a full agent-mode night |
+| 14 | Mon Nov 23–Tue 24 | **Truth Variant B** (different hideout and clue holders) for the second night of the two-mode playtest | Both variants play through to every ending in tests |
+| 15 | Tue Nov 24 | Configuration Document and Risk Register updated for v0.3; plan moved to Asana | Docs match the build |
+| 16 | Wed Nov 25 | Internal play-through, both modes; bug fixes only | No blocking bugs |
+| 17 | Thu Nov 26–Fri 27 | **External playtest** (1+ players outside the course, one night per mode, order alternated) and Initial Playtest Log | Log entry per reader Section 5.9 |
+| 18 | Sat Nov 28 | Record the G2/G3 walkthrough | Posted with all links |
+
+**Post-G3 ideas (parked, not cut):** NPC expressions from the agent's emotion field; more events; a second night; player-made characters; desktop-pet rewards (Braintrust #4); more sound design.
 
 ## Risk Profile (summary; the full Register comes at G2/G3)
 
