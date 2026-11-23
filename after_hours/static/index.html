@@ -4,136 +4,196 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>After Hours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #07070d; --panel: #10101c; --panel-2: #171728; --line: #2a2a44;
-    --text: #e9e6f2; --muted: #8d89a6; --pink: #ff3ea5; --cyan: #2ee6ff; --amber: #ffc857; --green: #5dffa8;
-    --mara: #ff3ea5; --jun: #2ee6ff; --nico: #5dffa8;
+    --ink: #060405;          /* the dark */
+    --velvet: #5c0a10;       /* curtain red, deep */
+    --red: #b3141f;          /* curtain red, lit */
+    --lamp: #e7c891;         /* warm lamplight */
+    --paper: #ece4d6;        /* text */
+    --dim: #8b8079;          /* quiet text */
+    --faint: #3a2f2e;        /* hairlines */
+    --blue: #3b5bff;         /* the one cold accent: evidence */
+    --serif: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
   body {
-    background: radial-gradient(1200px 600px at 80% -10%, #2a0b2a 0%, transparent 60%),
-                radial-gradient(900px 500px at -10% 110%, #06283a 0%, transparent 60%), var(--bg);
-    color: var(--text); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--ink); color: var(--paper); font: 15px/1.6 var(--sans); overflow: hidden;
+    -webkit-font-smoothing: antialiased;
   }
-  .app { display: grid; grid-template-rows: auto 1fr; height: 100vh; max-width: 1180px; margin: 0 auto; padding: 12px 16px; gap: 12px; }
-  header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  h1 { margin: 0; font-size: 22px; letter-spacing: .25em; font-weight: 800;
-       color: var(--pink); text-shadow: 0 0 8px rgba(255,62,165,.7), 0 0 24px rgba(255,62,165,.35); }
-  .clock { font: 600 14px ui-monospace, Menlo, monospace; color: var(--cyan); border: 1px solid var(--line);
-           padding: 4px 10px; border-radius: 6px; background: var(--panel); }
-  .hours { display: flex; gap: 4px; }
-  .hours span { width: 22px; height: 6px; border-radius: 3px; background: var(--line); }
-  .hours span.past { background: #3a3a55; } .hours span.now { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  /* Stage dressing: vignette, faint curtain folds at the edges, film grain */
+  .vignette { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 42%, rgba(92,10,16,.22) 0%, rgba(6,4,5,0) 55%),
+                radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.85) 100%); }
+  .curtain { position: fixed; top: 0; bottom: 0; width: 7vw; max-width: 90px; pointer-events: none; z-index: 0; opacity: .8;
+    background: repeating-linear-gradient(90deg, #2a0306 0 9px, #4a070d 9px 16px, #2a0306 16px 26px); }
+  .curtain.l { left: 0; mask-image: linear-gradient(90deg, #000 0%, transparent 100%); -webkit-mask-image: linear-gradient(90deg, #000, transparent); }
+  .curtain.r { right: 0; mask-image: linear-gradient(270deg, #000 0%, transparent 100%); -webkit-mask-image: linear-gradient(270deg, #000, transparent); }
+  .grain { position: fixed; inset: -50%; pointer-events: none; z-index: 5; opacity: .07; animation: grain 1.2s steps(6) infinite;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  @keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-3%)} 60%{transform:translate(-2%,-1%)} 80%{transform:translate(3%,3%)} 100%{transform:translate(0,0)} }
+  @media (prefers-reduced-motion: reduce) { .grain { animation: none; } .title { animation: none !important; } }
+
+  .app { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: 56px 1fr 40px; }
+  /* Letterbox bars */
+  .bar { background: #000; display: flex; align-items: center; gap: 22px; padding: 0 28px; border-bottom: 1px solid #120c0c; }
+  .bar.bottom { border-top: 1px solid #120c0c; border-bottom: 0; font-size: 12px; color: var(--dim); justify-content: space-between; }
+  .title { font: 500 20px/1 var(--serif); letter-spacing: .42em; color: var(--paper); text-transform: uppercase; white-space: nowrap;
+           animation: flicker 9s infinite; }
+  @keyframes flicker { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .55; } 94% { opacity: 1; } 96% { opacity: .7; } }
+  .caps { font: 600 10.5px/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--dim); }
+  .clock { font: italic 500 18px/1 var(--serif); color: var(--lamp); letter-spacing: .04em; white-space: nowrap; }
+  .sallow { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .sallow .track { display: flex; gap: 4px; }
+  .sallow .track span { width: 16px; height: 2px; background: #4a2326; }
+  .sallow .track span.on { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .sallow .where { font: italic 15px/1 var(--serif); color: #d9a5a5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
   .spacer { flex: 1; }
-  .pill { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; }
-  button { font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line);
-           border-radius: 8px; padding: 9px 14px; cursor: pointer; text-align: left; transition: border-color .15s, box-shadow .15s; }
-  button:hover:not(:disabled) { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan) inset; }
-  button:disabled { opacity: .45; cursor: default; }
-  button.ghost { background: transparent; }
-  main { display: grid; grid-template-columns: 260px 1fr; gap: 12px; min-height: 0; }
-  aside, .stage { background: rgba(16,16,28,.85); border: 1px solid var(--line); border-radius: 12px; min-height: 0; }
-  aside { padding: 14px; overflow: auto; display: flex; flex-direction: column; gap: 18px; }
-  .portrait { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; font-size: 64px; font-weight: 800;
-              background: linear-gradient(160deg, #1d1d33, #0b0b14); border: 1px solid var(--line); color: var(--muted); }
-  .portrait[data-npc] { color: var(--c); border-color: var(--c); text-shadow: 0 0 18px var(--c); box-shadow: 0 0 30px -12px var(--c) inset; }
-  .where { font-size: 13px; color: var(--muted); margin-top: 6px; text-align: center; }
-  h2 { margin: 0 0 8px; font-size: 11px; letter-spacing: .18em; color: var(--muted); font-weight: 700; }
-  .clue { border-left: 3px solid var(--amber); padding: 6px 10px; margin-bottom: 8px; background: rgba(255,200,87,.06); border-radius: 0 6px 6px 0; }
-  .clue b { color: var(--amber); font-size: 13px; } .clue p { margin: 2px 0 0; font-size: 13px; color: #d9d2bb; }
-  .empty { color: var(--muted); font-size: 13px; font-style: italic; }
-  .lead { border: 1px solid var(--line); border-left: 3px solid var(--c); border-radius: 0 8px 8px 0; padding: 8px 10px; margin-bottom: 8px; background: var(--panel); }
-  .lead.ready { box-shadow: 0 0 0 1px var(--c), 0 0 18px -6px var(--c); }
-  .lead .top { display: flex; justify-content: space-between; gap: 6px; font-size: 13px; }
-  .lead .top b { color: var(--c); } .lead .top span { color: var(--muted); font-size: 11px; }
-  .lead p { margin: 3px 0 6px; font-size: 12px; color: #cfcbe0; }
-  .lead .status { font-size: 12px; font-weight: 600; margin-top: 4px; }
-  .lead .status.ready { color: var(--amber); } .lead .status.shared { color: var(--green); } .lead .status.closed { color: #ff7b7b; }
-  .tbar { height: 6px; background: var(--line); border-radius: 3px; position: relative; }
-  .tbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--cyan); }
-  .tbar u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--amber); }
-  .sallow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #ff8a8a; min-width: 0; }
-  #sallow-where { max-width: 230px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  header { gap: 12px !important; } header .pill { white-space: nowrap; }
-  .sallow .pips { display: flex; gap: 3px; } .sallow .pips span { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #5a2630; }
-  .sallow .pips span.on { background: #ff4d5e; border-color: #ff4d5e; box-shadow: 0 0 8px #ff4d5e; }
-  .msg.hunt { align-self: center; font-size: 12px; color: #ff8a8a; padding: 2px 10px; border: 1px solid rgba(255,77,94,.4); border-radius: 99px; }
-  .deals { border-top: 1px dashed var(--line); padding-top: 8px; }
-  button.deal { border-color: rgba(255,200,87,.5); } button.deal.risky { border-style: dashed; color: #ffd98a; }
-  .lead .want { font-size: 12px; color: var(--amber); margin: 0 0 6px; }
-  .hideouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
-  .hideouts button { display: flex; flex-direction: column; gap: 4px; border-color: rgba(255,62,165,.5); }
-  .hideouts button b { color: var(--pink); } .hideouts button span { font-size: 12px; color: var(--muted); }
-  .howto { align-self: stretch; max-width: none; border: 1px solid var(--cyan); background: rgba(46,230,255,.05); border-radius: 12px; padding: 14px 16px; }
-  .howto b { color: var(--cyan); letter-spacing: .1em; font-size: 12px; } .howto ol { margin: 8px 0 0; padding-left: 20px; } .howto li { margin: 4px 0; }
-  .meter { display: grid; grid-template-columns: 46px 1fr; gap: 2px 8px; font-size: 12px; margin-bottom: 8px; align-items: center; }
-  .meter .name { font-weight: 700; grid-row: span 2; color: var(--c); }
-  .bar { height: 6px; background: var(--line); border-radius: 3px; position: relative; }
-  .bar i { position: absolute; top: 0; bottom: 0; left: 50%; border-radius: 3px; }
-  .stage { display: grid; grid-template-rows: 1fr auto; overflow: hidden; }
-  .feed { overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 78%; padding: 9px 13px; border-radius: 12px; white-space: pre-wrap; animation: in .2s ease-out; }
-  @keyframes in { from { transform: translateY(4px); } }
-  .msg.npc { background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid var(--c, var(--muted)); align-self: flex-start; }
-  .msg.npc .who { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--c); margin-bottom: 2px; }
-  .msg.player { background: #241532; border: 1px solid #4a2560; align-self: flex-end; }
-  .msg.narration { align-self: center; color: var(--muted); font-style: italic; text-align: center; max-width: 90%; }
-  .msg.event { align-self: stretch; max-width: none; border: 1px dashed var(--pink); color: #ffd4ea; background: rgba(255,62,165,.06); }
-  .msg.clue { align-self: stretch; max-width: none; border: 1px solid var(--amber); color: #ffe7a8; background: rgba(255,200,87,.08); }
-  .msg.clue::before { content: "CASE BOARD +  "; font-weight: 800; letter-spacing: .1em; font-size: 11px; color: var(--amber); }
-  .msg.system { align-self: center; font-size: 12px; color: var(--cyan); padding: 2px 10px; border: 1px solid rgba(46,230,255,.35); border-radius: 99px; }
-  .msg.ending { align-self: stretch; max-width: none; text-align: center; font-size: 18px; padding: 18px;
-                border: 1px solid var(--pink); color: #fff; box-shadow: 0 0 30px -10px var(--pink); }
-  .typing { align-self: flex-start; color: var(--muted); font-size: 13px; display: none; }
-  .typing.on { display: block; }
-  .controls { border-top: 1px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 8px; background: rgba(7,7,13,.6);
-              max-height: 46vh; overflow-y: auto; }
-  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
-  .choices.col { flex-direction: column; }
-  .choices.small button { padding: 7px 11px; font-size: 14px; }
-  .row { display: flex; gap: 8px; }
-  input[type=text] { flex: 1; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line);
-                     border-radius: 8px; padding: 10px 12px; outline: none; }
-  input[type=text]:focus { border-color: var(--pink); }
-  .hint { font-size: 12px; color: var(--muted); }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-  .card { border: 1px solid var(--c); border-radius: 10px; padding: 12px; background: var(--panel-2); }
-  .card b { color: var(--c); } .card ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; color: #cfcbe0; }
-  .ending-title { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 0 14px var(--pink); }
-  .err { color: #ff7b7b; font-size: 13px; min-height: 1em; }
-  @media (max-width: 760px) {
-    .app { height: auto; min-height: 100vh; }
-    main { grid-template-columns: 1fr; grid-template-rows: auto auto; }
-    .stage { height: 82vh; }
-    aside { flex-direction: row; overflow-x: auto; max-height: 180px; } .portrait { width: 90px; font-size: 36px; }
-    aside > div { min-width: 220px; } .msg { max-width: 92%; }
+  .link { background: none; border: 0; padding: 0; color: var(--dim); font: 500 11px/1 var(--sans); letter-spacing: .2em;
+          text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .link:hover { color: var(--paper); }
+
+  main { display: grid; grid-template-columns: 280px 1fr; min-height: 0; max-width: 1240px; width: 100%; margin: 0 auto; }
+  /* The dossier */
+  aside { padding: 28px 26px; overflow-y: auto; border-right: 1px solid var(--faint); }
+  aside section + section { margin-top: 34px; }
+  aside h2 { margin: 0 0 14px; }
+  .evidence { position: relative; padding: 2px 0 2px 14px; margin-bottom: 16px; border-left: 1px solid var(--blue); }
+  .evidence b { display: block; font: 600 10.5px/1.4 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: #9fb0ff; }
+  .evidence p { margin: 4px 0 0; font: 16px/1.45 var(--serif); color: var(--paper); }
+  .empty { font: italic 16px/1.5 var(--serif); color: var(--dim); }
+  .person { padding: 12px 0; border-top: 1px solid var(--faint); }
+  .person:first-of-type { border-top: 0; padding-top: 0; }
+  .person .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .person .name { font: 500 21px/1.1 var(--serif); color: var(--paper); }
+  .person .place { font-size: 11px; color: var(--dim); }
+  .person .hint { margin: 4px 0 0; font: italic 15px/1.4 var(--serif); color: #b9aea4; }
+  .person .want { margin: 4px 0 0; font: 15px/1.4 var(--serif); color: var(--lamp); }
+  .person .trust { position: relative; height: 1px; background: var(--faint); margin: 10px 0 7px; }
+  .person .trust i { position: absolute; left: 0; top: -1px; height: 3px; background: var(--paper); opacity: .8; }
+  .person .trust u { position: absolute; top: -4px; width: 1px; height: 9px; background: var(--lamp); }
+  .person .status { font: 600 10.5px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+  .person.ready .status { color: var(--lamp); } .person.shared .status { color: #9fb0ff; } .person.closed .status { color: var(--red); }
+  .person.ready .name { text-shadow: 0 0 18px rgba(231,200,145,.45); }
+
+  /* The scene */
+  .scene { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+  .scene-head { padding: 26px 48px 10px; text-align: center; }
+  .scene-head .place { font: italic 400 15px/1 var(--serif); color: var(--dim); letter-spacing: .06em; }
+  .scene-head .who { margin-top: 6px; font: 500 40px/1 var(--serif); letter-spacing: .14em; text-transform: uppercase; color: var(--paper); }
+  .scene-head .who:empty { display: none; }
+  .feed { overflow-y: auto; padding: 12px 48px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .line { max-width: 640px; animation: rise .5s ease-out; }
+  @keyframes rise { from { transform: translateY(5px); filter: blur(1px); } }
+  .line.npc { align-self: flex-start; }
+  .line.npc .who { font: 600 10.5px/1 var(--sans); letter-spacing: .26em; color: var(--red); text-transform: uppercase; }
+  .line.npc p { margin: 6px 0 0; font: 21px/1.45 var(--serif); color: var(--paper); }
+  .line.you { align-self: flex-end; text-align: right; }
+  .line.you p { margin: 0; font: italic 19px/1.45 var(--serif); color: var(--lamp); }
+  .line.you p::before { content: "— "; color: var(--dim); }
+  .line.narration { align-self: center; text-align: center; max-width: 560px; font: italic 17px/1.55 var(--serif); color: var(--dim); }
+  .line.event { align-self: center; text-align: center; max-width: 600px; padding: 14px 0; border-top: 1px solid var(--velvet); border-bottom: 1px solid var(--velvet); }
+  .line.event .caps { color: var(--red); display: block; margin-bottom: 8px; }
+  .line.event p { margin: 0; font: 19px/1.5 var(--serif); color: #e6d2c7; }
+  .line.clue { align-self: stretch; max-width: none; padding: 14px 18px; border-left: 2px solid var(--blue);
+               background: linear-gradient(90deg, rgba(59,91,255,.10), rgba(59,91,255,0) 70%); }
+  .line.clue .caps { color: #9fb0ff; display: block; margin-bottom: 6px; }
+  .line.clue p { margin: 0; font: 19px/1.5 var(--serif); }
+  .line.system { align-self: center; font: 600 10.5px/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #a8957a; text-align: center; }
+  .line.hunt { align-self: center; font: 600 10.5px/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #d0525a; text-align: center; }
+  .line.ending { align-self: center; text-align: center; padding: 26px 0 8px; }
+  .line.ending .t { font: 500 46px/1.05 var(--serif); letter-spacing: .12em; text-transform: uppercase; color: var(--paper); text-shadow: 0 0 30px rgba(179,20,31,.6); }
+  .line.ending p { margin: 12px auto 0; max-width: 520px; font: italic 19px/1.5 var(--serif); color: #cdbfb3; }
+  .howto { align-self: center; max-width: 560px; text-align: center; padding: 8px 0 4px; }
+  .howto .caps { color: var(--lamp); }
+  .howto ol { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; }
+  .howto li { counter-increment: s; font: 17px/1.5 var(--serif); color: #cdbfb3; margin: 10px 0; }
+  .howto li::before { content: counter(s, upper-roman) ".  "; color: var(--red); font-weight: 600; }
+  .typing { align-self: flex-start; font: italic 16px var(--serif); color: var(--dim); display: none; }
+  .typing.on { display: block; animation: breathe 1.4s ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity: .35; } }
+
+  /* Controls: text, not boxes */
+  .controls { padding: 16px 48px 22px; border-top: 1px solid var(--faint); max-height: 44vh; overflow-y: auto;
+              background: linear-gradient(180deg, rgba(6,4,5,.6), rgba(6,4,5,.95)); }
+  .prompt { margin: 0 0 8px; }
+  .options { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .opt { background: none; border: 0; padding: 5px 0; cursor: pointer; text-align: left; color: #d8cfc4;
+         font: 18px/1.35 var(--serif); transition: color .15s, padding .15s; }
+  .opt::before { content: "—  "; color: var(--faint); transition: color .15s; }
+  .opt:hover:not(:disabled) { color: #fff; padding-left: 6px; }
+  .opt:hover:not(:disabled)::before { color: var(--red); }
+  .opt:disabled { opacity: .35; cursor: default; }
+  .opt.deal { color: var(--lamp); } .opt.deal::before { content: "◆  "; color: #7a6542; }
+  .opt.risky { font-style: italic; } .opt.risky::after { content: "  · a gamble"; font: 600 10px var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+  .group + .group { margin-top: 14px; }
+  .say { display: flex; gap: 16px; align-items: center; margin-top: 14px; }
+  .say input { flex: 1; background: none; border: 0; border-bottom: 1px solid var(--faint); padding: 8px 2px; color: var(--paper);
+               font: italic 19px var(--serif); outline: none; }
+  .say input:focus { border-bottom-color: var(--red); }
+  .say input::placeholder { color: #5e534f; }
+  .places { display: flex; flex-wrap: wrap; gap: 8px 30px; }
+  .place-btn { background: none; border: 0; padding: 4px 0; cursor: pointer; color: var(--paper); font: 500 22px/1.2 var(--serif); letter-spacing: .04em;
+               border-bottom: 1px solid transparent; }
+  .place-btn:hover:not(:disabled) { border-bottom-color: var(--red); }
+  .hideouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 4px 0 18px; }
+  .hideout { background: rgba(59,91,255,.05); border: 1px solid rgba(59,91,255,.35); padding: 14px 16px; cursor: pointer; text-align: left; color: var(--paper); }
+  .hideout:hover:not(:disabled) { border-color: var(--blue); box-shadow: 0 0 24px -8px var(--blue); }
+  .hideout b { display: block; font: 500 21px/1.2 var(--serif); }
+  .hideout span { display: block; margin-top: 6px; font: italic 15px/1.4 var(--serif); color: var(--dim); }
+  .footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 22px; margin: 6px 0 14px; }
+  .card .name { font: 500 22px/1 var(--serif); }
+  .card .meta { margin: 6px 0 8px; }
+  .card ul { margin: 0; padding: 0; list-style: none; }
+  .card li { font: italic 16px/1.45 var(--serif); color: #cdbfb3; margin: 3px 0; }
+  .err { color: #e06a72; font-size: 13px; min-height: 0; }
+
+  @media (max-width: 860px) {
+    body { overflow: auto; }
+    .app { height: auto; min-height: 100vh; grid-template-rows: auto auto 40px; }
+    .bar { flex-wrap: wrap; padding: 12px 18px; gap: 10px 16px; }
+    main { grid-template-columns: minmax(0, 1fr); }
+    .scene, .feed, .controls { min-width: 0; }
+    body, .app { overflow-x: hidden; }
+    .title { font-size: 17px; letter-spacing: .3em; }
+    .sallow .where { max-width: 160px; }
+    .line.ending .t { font-size: 32px; }
+    .line.npc p { font-size: 19px; }
+    aside { order: 2; border-right: 0; border-top: 1px solid var(--faint); padding: 22px 18px; }
+    .scene { height: 86vh; }
+    .scene-head, .feed, .controls { padding-left: 18px; padding-right: 18px; }
+    .scene-head .who { font-size: 30px; }
+    .hideouts { grid-template-columns: 1fr; }
+    .curtain { display: none; }
   }
 </style>
 </head>
 <body>
+<div class="vignette"></div><div class="curtain l"></div><div class="curtain r"></div><div class="grain"></div>
 <div class="app">
-  <header>
-    <h1>AFTER HOURS</h1>
-    <div class="clock" id="clock">MIDNIGHT</div>
-    <div class="hours" id="hours"></div>
-    <div class="sallow" title="Sallow, Veyra's hunter, is looking for Rook too."><b>SALLOW</b><div class="pips" id="pips"></div><span id="sallow-where"></span></div>
+  <header class="bar">
+    <span class="title">After Hours</span>
+    <span class="clock" id="clock">Midnight</span>
+    <div class="sallow" title="Sallow, Veyra's hunter, is looking for Rook too.">
+      <span class="caps">Sallow</span><div class="track" id="track"></div><span class="where" id="sallow-where"></span>
+    </div>
     <div class="spacer"></div>
-    <span class="pill" id="credits"></span>
-    <span class="pill" id="mode"></span>
-    <button class="ghost" id="restart">New night</button>
+    <span class="caps" id="credits"></span>
+    <button class="link" id="restart">New night</button>
   </header>
   <main>
     <aside>
-      <div>
-        <div class="portrait" id="portrait">?</div>
-        <div class="where" id="where">Kessler block</div>
-      </div>
-      <div><h2 id="board-title">CASE BOARD</h2><div id="board"></div></div>
-      <div><h2>LEADS</h2><div id="leads"></div></div>
+      <section><h2 class="caps" id="board-title">The case</h2><div id="board"></div></section>
+      <section><h2 class="caps">People</h2><div id="leads"></div></section>
     </aside>
-    <section class="stage">
+    <section class="scene">
+      <div class="scene-head"><div class="place" id="place">The Kessler block</div><div class="who" id="who"></div></div>
       <div class="feed" id="feed"></div>
       <div class="controls">
         <div class="typing" id="typing"></div>
@@ -142,13 +202,17 @@
       </div>
     </section>
   </main>
+  <footer class="bar bottom"><span id="hint"></span><span class="caps" id="mode"></span></footer>
 </div>
 <script>
 const SLOTS = ["midnight", "1am", "2am", "3am"];
+const SLOT_NAMES = { midnight: "Midnight", "1am": "One a.m.", "2am": "Two a.m.", "3am": "Three a.m." };
 const NAMES = { mara: "Mara", jun: "Jun", nico: "Nico" };
-const COLORS = { mara: "var(--mara)", jun: "var(--jun)", nico: "var(--nico)" };
-const FACT_TEXT = { lied_to: "Knows you lied to them", promised: "Remembers your promise", kindness: "Remembers you were kind",
-  flirted: "Remembers you flirting", asked_openly: "Heard you asking around loudly" };
+const FACT_TEXT = { lied_to: "Knows you lied", promised: "Remembers your promise", kindness: "Remembers you were kind",
+  flirted: "Remembers you flirting", asked_openly: "Heard you asking around" };
+const STATUS = { new: () => "Not met", met: () => "Ask what it would take", want: (l) => `Make a deal, or trust ${l.needed}`,
+  ready: () => "Ready to talk", shared: () => "Told you", closed: () => "Won't talk" };
+const INTRO = `Rook didn't come home. Their last message: "At the Lantern. Tell no one." The checkpoint opens at four.`;
 const $ = (id) => document.getElementById(id);
 let snap = null, busy = false;
 
@@ -157,7 +221,7 @@ function el(tag, attrs = {}, ...kids) {
   for (const [k, v] of Object.entries(attrs)) {
     if (k === "style") n.style.cssText = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
   }
-  for (const kid of kids) n.append(kid);
+  for (const kid of kids) if (kid != null) n.append(kid);
   return n;
 }
 
@@ -165,7 +229,7 @@ async function api(action, body = {}) {
   if (busy) return;
   busy = true; $("err").textContent = "";
   const waitingOn = snap && snap.npc && (action === "say" || action === "option") ? NAMES[snap.npc] : null;
-  $("typing").textContent = waitingOn ? `${waitingOn} is typing…` : "";
+  $("typing").textContent = waitingOn ? `${waitingOn} is thinking…` : "";
   $("typing").classList.toggle("on", !!waitingOn);
   document.querySelectorAll(".controls button, .controls input").forEach((b) => (b.disabled = true));
   try {
@@ -178,120 +242,132 @@ async function api(action, body = {}) {
   finally { busy = false; $("typing").classList.remove("on"); }
 }
 
-function addFeed(items) {
-  const feed = $("feed");
-  for (const m of items) {
-    const msg = el("div", { class: `msg ${m.kind}` });
-    if (m.kind === "npc" && m.speaker) {
-      msg.style.setProperty("--c", COLORS[m.speaker]);
-      msg.append(el("span", { class: "who" }, NAMES[m.speaker].toUpperCase()));
+function line(m) {
+  switch (m.kind) {
+    case "npc": return el("div", { class: "line npc" }, el("span", { class: "who" }, NAMES[m.speaker] || ""), el("p", {}, m.text));
+    case "player": return el("div", { class: "line you" }, el("p", {}, m.text));
+    case "event": {
+      const [title, ...rest] = m.text.split(": ");
+      return el("div", { class: "line event" }, el("span", { class: "caps" }, title), el("p", {}, rest.join(": ")));
     }
-    msg.append(m.text);
-    feed.append(msg);
+    case "clue": return el("div", { class: "line clue" }, el("span", { class: "caps" }, "Evidence"), el("p", {}, m.text.replace(/^Drone footage: /, "")));
+    case "ending": {
+      const [title, ...rest] = m.text.split(". ");
+      return el("div", { class: "line ending" }, el("div", { class: "t" }, title), el("p", {}, rest.join(". ")));
+    }
+    case "narration": return /^(MIDNIGHT|1AM|2AM|3AM) · /.test(m.text) ? null : el("div", { class: "line narration" }, m.text);
+    default: return el("div", { class: `line ${m.kind}` }, m.text);
   }
+}
+
+function addFeed(items) {
+  for (const m of items) { const n = line(m); if (n) $("feed").append(n); }
 }
 
 function render() {
   if (!snap) return;
   addFeed(snap.feed || []); snap.feed = [];
-  const i = SLOTS.indexOf(snap.slot);
-  $("clock").textContent = snap.phase === "dawn" ? "4:00 AM · DAWN" : snap.slot.toUpperCase().replace("AM", " AM");
-  $("hours").replaceChildren(...SLOTS.map((_, j) => el("span", { class: snap.phase === "dawn" || j < i ? "past" : j === i ? "now" : "" })));
+  $("clock").textContent = snap.phase === "dawn" ? "Dawn" : SLOT_NAMES[snap.slot];
   $("credits").textContent = `${snap.credits} credits`;
-  $("pips").replaceChildren(...Array.from({ length: snap.sallow.max }, (_, j) => el("span", { class: j < snap.sallow.heat ? "on" : "" })));
-  $("sallow-where").textContent = snap.sallow.where;
+  $("track").replaceChildren(...Array.from({ length: snap.sallow.max }, (_, j) => el("span", { class: j < snap.sallow.heat ? "on" : "" })));
+  $("sallow-where").textContent = snap.sallow.where.replace(/^Sallow is /, "");
   $("mode").textContent = snap.mode === "agent" ? "Agent mode" : "Scripted mode";
 
-  const p = $("portrait");
-  if (snap.npc) { p.dataset.npc = snap.npc; p.style.setProperty("--c", COLORS[snap.npc]); p.textContent = NAMES[snap.npc][0]; }
-  else { delete p.dataset.npc; p.textContent = snap.phase === "finale" ? "R" : "◇"; }
-  const here = snap.npc ? `${snap.npc_name} · ${snap.location_name}` : snap.phase === "finale" ? "Kessler freight lift" : "Kessler block";
-  $("where").textContent = here;
+  $("place").textContent = snap.npc ? snap.location_name : snap.phase === "finale" ? snap.location_name
+    : snap.phase === "dawn" ? "Four a.m." : "The Kessler block";
+  $("who").textContent = snap.npc ? snap.npc_name : snap.phase === "finale" ? "Rook" : "";
 
+  $("board-title").textContent = `The case · ${snap.case_board.length} ${snap.case_board.length === 1 ? "piece" : "pieces"}`;
   $("board").replaceChildren(...(snap.case_board.length ? snap.case_board.map((c) =>
-    el("div", { class: "clue" }, el("b", {}, c.title), el("p", {}, c.text))) : [el("div", { class: "empty" }, "No clues yet. Two will lead you to Rook.")]));
+    el("div", { class: "evidence" }, el("b", {}, c.title), el("p", {}, c.text)))
+    : [el("div", { class: "empty" }, "Nothing yet. Each of them knows one piece.")]));
 
-  $("board-title").textContent = `CASE BOARD · ${Math.min(snap.case_board.length, snap.clues_needed)}/${snap.clues_needed} CLUES`;
-  const STATUS = { new: () => "Haven't met yet", met: () => "Ask what it would take.", want: (l) => `Make a deal, or earn trust ${l.needed}`,
-    ready: () => "Ready to talk. Ask about Rook!", shared: () => "✓ Told you what they know", closed: () => "Won't talk to you now" };
-  $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `lead ${l.status}`, style: `--c:${COLORS[l.npc]}` },
-    el("div", { class: "top" }, el("b", {}, l.name), el("span", {}, l.where)),
-    el("p", {}, l.hint),
-    ...(l.want ? [el("div", { class: "want" }, "Wants: " + l.want.replace(/^Wants /, ""))] : []),
-    el("div", { class: "tbar", title: `Trust ${l.trust} (needs ${l.needed})` },
-      el("i", { style: `width:${Math.max(0, l.trust) * 20}%` }), el("u", { style: `left:${l.needed * 20}%` })),
-    el("div", { class: `status ${l.status}` }, STATUS[l.status](l)))),
-    el("div", { class: "hint" }, "Blue bar: trust. Gold line: trust needed to talk them round without a deal."));
+  $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `person ${l.status}` },
+    el("div", { class: "row1" }, el("span", { class: "name" }, l.name), el("span", { class: "place" }, l.where)),
+    l.want ? el("p", { class: "want" }, l.want) : el("p", { class: "hint" }, l.hint),
+    el("div", { class: "trust", title: `Trust ${l.trust}. Needs ${l.needed} to talk them round without a deal.` },
+      el("i", { style: `width:${Math.max(0, l.trust) * 20}%` }), el("u", { style: `left:${Math.min(l.needed, 5) * 20}%` })),
+    el("span", { class: "status" }, STATUS[l.status](l)))));
 
   const panel = $("panel"); panel.replaceChildren();
+  let hint = "";
   if (snap.phase === "choose_location") {
     if (snap.hideouts.length) {
-      panel.append(el("div", { class: "hint" }, "Where is Rook hiding? You get one try. Use your case board."),
-        el("div", { class: "hideouts" }, ...snap.hideouts.map((h) => el("button", {
-          onclick: () => { if (confirm(`Search the ${h.name}? This is your one guess.`)) api("visit", { location: h.id }); } },
+      panel.append(el("p", { class: "caps prompt" }, "Where is Rook? One guess."),
+        el("div", { class: "hideouts" }, ...snap.hideouts.map((h) => el("button", { class: "hideout",
+          onclick: () => { if (confirm(`Search the ${h.name}? You only get one guess.`)) api("visit", { location: h.id }); } },
           el("b", {}, h.name), el("span", {}, h.about)))),
-        el("div", { class: "hint" }, "Or spend the last hour with someone:"));
+        el("p", { class: "caps prompt" }, "Or spend the last hour with someone"));
+      hint = "Read the case. What does the evidence point to?";
     } else {
-      panel.append(el("div", { class: "hint" }, "Where do you spend the next hour?"));
+      panel.append(el("p", { class: "caps prompt" }, "Where do you spend the hour?"));
+      hint = "Each place, one person. Each person, one piece of the night.";
     }
-    panel.append(el("div", { class: "choices" }, ...snap.locations.map((l) => el("button", { onclick: () => api("visit", { location: l.id }) }, l.name))));
+    panel.append(el("div", { class: "places" }, ...snap.locations.map((l) =>
+      el("button", { class: "place-btn", onclick: () => api("visit", { location: l.id }) }, l.name))));
   } else if (snap.phase === "event" && snap.event) {
-    panel.append(el("div", { class: "choices" }, ...Object.entries(snap.event.choices).map(([k, label]) =>
-      el("button", { onclick: () => api("event", { choice: k }) }, label))));
+    panel.append(el("div", { class: "options" }, ...Object.entries(snap.event.choices).map(([k, label]) =>
+      el("button", { class: "opt", onclick: () => api("event", { choice: k }) }, label))));
+    hint = "Something's happening. Choose.";
   } else if (snap.phase === "talk") {
-    panel.append(el("div", { class: "hint" }, snap.mode === "agent" ? "Ideas (or type your own below):" : "Choose what to say:"));
-    const opts = el("div", { class: "choices small" }, ...snap.options.map((o, j) =>
-      el("button", { onclick: () => snap.mode === "agent" ? api("say", { text: o }) : api("option", { index: j }) }, o)));
-    panel.append(opts);
+    panel.append(el("div", { class: "group" }, el("div", { class: "options" }, ...snap.options.map((o, j) =>
+      el("button", { class: "opt", onclick: () => snap.mode === "agent" ? api("say", { text: o }) : api("option", { index: j }) }, o)))));
     if (snap.deals.length) {
-      panel.append(el("div", { class: "deals" }, el("div", { class: "hint" }, `Deals for ${snap.npc_name}:`),
-        el("div", { class: "choices small" }, ...snap.deals.map((d) =>
-          el("button", { class: `deal ${d.risky ? "risky" : ""}`, onclick: () => api("deal", { deal: d.id }) }, d.label)))));
+      panel.append(el("div", { class: "group" }, el("p", { class: "caps prompt" }, `Offer ${snap.npc_name}`),
+        el("div", { class: "options" }, ...snap.deals.map((d) =>
+          el("button", { class: `opt deal ${d.risky ? "risky" : ""}`, onclick: () => api("deal", { deal: d.id }) },
+            d.label.replace(/ \(risky\)$/, ""))))));
     }
+    const leave = el("button", { class: "link", onclick: () => api("leave") }, "Leave");
     if (snap.mode === "agent") {
-      const input = el("input", { type: "text", maxlength: "300", placeholder: `Type anything to ${snap.npc_name}…` });
+      const input = el("input", { type: "text", maxlength: "300", placeholder: `Say anything to ${snap.npc_name}…` });
       const send = () => { const t = input.value.trim(); if (t) api("say", { text: t }); };
       input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
-      panel.append(el("div", { class: "row" }, input, el("button", { onclick: send }, "Say")));
+      panel.append(el("div", { class: "say" }, input, el("button", { class: "link", onclick: send }, "Say"), leave));
       setTimeout(() => input.focus(), 0);
+    } else {
+      panel.append(el("div", { class: "footer-row" }, el("span"), leave));
     }
-    panel.append(el("div", { class: "row" }, el("span", { class: "hint", style: "flex:1;align-self:center" },
-      `${snap.exchanges_left} exchanges left this hour`), el("button", { class: "ghost", onclick: () => api("leave") }, "Leave")));
+    hint = `${snap.exchanges_left} ${snap.exchanges_left === 1 ? "exchange" : "exchanges"} left this hour`;
   } else if (snap.phase === "finale") {
-    panel.append(el("div", { class: "choices col" }, ...Object.entries(snap.finale_choices).map(([k, label]) =>
-      el("button", { onclick: () => api("finale", { choice: k }) }, label))));
+    panel.append(el("div", { class: "options" }, ...Object.entries(snap.finale_choices).map(([k, label]) =>
+      el("button", { class: "opt", onclick: () => api("finale", { choice: k }) }, label))));
+    hint = "The chip. Decide.";
   } else if (snap.phase === "dawn") {
-    panel.append(el("div", { class: "ending-title" }, snap.ending ? snap.ending.title : "Dawn"), el("div", { class: "cards" }, ...snap.dawn_cards.map((c) => {
-      const npc = c.npc.toLowerCase(), items = [];
+    panel.append(el("div", { class: "cards" }, ...snap.dawn_cards.map((c) => {
+      const items = [];
       if (c.promise_broken) items.push("“You made me a promise.”");
-      if (c.betrayed) items.push("Knows you sold her out to Jun");
+      if (c.betrayed) items.push("Knows you sold her out");
       if (c.deal && !c.promise_broken) items.push("You kept your deal");
       c.facts.forEach((f) => items.push(FACT_TEXT[f] || f));
       c.remembers.forEach((r) => items.push(r));
       if (!items.length) items.push("Barely remembers you.");
-      return el("div", { class: "card", style: `--c:${COLORS[npc]}` }, el("b", {}, c.npc),
-        el("div", { class: "hint" }, `Trust ${c.trust} · Warmth ${c.warmth}`), el("ul", {}, ...items.map((t) => el("li", {}, t))));
-    })), el("div", { class: "row" }, el("button", { onclick: () => { $("feed").replaceChildren(el("div", { class: "msg narration" }, INTRO), howTo()); api("new", { mode: snap.mode }); } }, "Play another night")));
+      return el("div", { class: "card" }, el("div", { class: "name" }, c.npc),
+        el("div", { class: "caps meta" }, `Trust ${c.trust} · Warmth ${c.warmth}`), el("ul", {}, ...items.map((t) => el("li", {}, t))));
+    })), el("button", { class: "link", onclick: newNight }, "Play another night"));
+    hint = snap.ending ? snap.ending.title : "";
   }
+  $("hint").textContent = hint;
   requestAnimationFrame(() => { $("feed").scrollTop = $("feed").scrollHeight; });
 }
 
-const INTRO = `Rook didn't come home. Their last message: "At the Lantern. Tell no one." The checkpoint opens at 4 a.m.`;
-$("restart").addEventListener("click", () => {
-  if (confirm("Start a new night? This one will be lost.")) { $("feed").replaceChildren(el("div", { class: "msg narration" }, INTRO), howTo()); api("new", { mode: snap ? snap.mode : undefined }); }
-});
 function howTo() {
   const typing = snap && snap.mode === "agent";
-  return el("div", { class: "msg howto" }, el("b", {}, "HOW TO PLAY"), el("ol", {},
-    el("li", {}, "Find Rook before 4 a.m. Each hour, pick a place and talk to whoever is there. Each person knows one piece."),
-    el("li", {}, "Everyone wants something. Ask what it would take, then make a deal (some are gambles, some betray someone else)."),
-    el("li", {}, "Sallow is hunting Rook too. Every hour he gets closer. Shouting about Rook or getting caught lying speeds him up."),
-    el("li", {}, "At 3 a.m. you choose where Rook is hiding. One guess. Read your clues carefully."),
-    el("li", {}, typing ? "Type anything you want. The suggestions are just ideas. They remember what you say." :
-      "Pick what to say from the menu. Watch for events: some are shortcuts.")));
+  return el("div", { class: "howto" }, el("span", { class: "caps" }, "How the night works"), el("ol", {},
+    el("li", {}, "Find Rook before four. Each hour, go somewhere and talk to whoever is there."),
+    el("li", {}, "Everyone wants something. Ask what it would take. Some deals are gambles; some betray someone else."),
+    el("li", {}, "Sallow is hunting Rook too. Shouting, or getting caught in a lie, brings him closer."),
+    el("li", {}, "At three, you decide where Rook is hiding. One guess."),
+    el("li", {}, typing ? "Say anything. They remember." : "Choose what to say. They remember.")));
 }
-$("feed").append(el("div", { class: "msg narration" }, INTRO));
-api("state").then(() => { if (snap && snap.slot === "midnight" && snap.phase === "choose_location") {
+
+function newNight() {
+  $("feed").replaceChildren(el("div", { class: "line narration" }, INTRO), howTo());
+  api("new", { mode: snap ? snap.mode : undefined });
+}
+$("restart").addEventListener("click", () => { if (confirm("Start a new night? This one will be lost.")) newNight(); });
+$("feed").append(el("div", { class: "line narration" }, INTRO));
+api("state").then(() => { if (snap && snap.slot === "midnight" && snap.phase === "choose_location" && !snap.case_board.length) {
   $("feed").append(howTo()); } });
 </script>
 </body>

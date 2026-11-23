@@ -435,7 +435,7 @@ class Night:
     # ---------- the search, the finale, Dawn ----------
     def _search(self, hideout: str) -> list[dict]:
         self.state.location = hideout
-        self._say("player", f"Go to the {HIDEOUTS[hideout]['name'].lower()}.")
+        self._say("player", f"Search the {HIDEOUTS[hideout]['name']}.")
         if hideout != ROOK_IS_AT:
             self._dawn(found_rook=False, reason=HIDEOUTS[hideout]["wrong"])
             return self.feed
