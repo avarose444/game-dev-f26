@@ -13,27 +13,25 @@ def clue_for(npc_id: str) -> str | None:
 
 
 def clue_threshold(state: GameState, npc_id: str) -> int:
-    """Trust needed for the NPC to reveal their clue (mystery bible Section 4)."""
+    """Trust needed to get the clue by talk alone (v0.3: deals are the faster route)."""
     npc = state.npcs[npc_id]
     if npc.has_fact("lied_to"):
-        return 4
+        return 5
     if npc.has_fact("kindness") and npc_id != "jun":  # Jun doesn't care about kindness
-        return 2
-    return 3
+        return 3
+    return 4
 
 
 def traded_for_clue(state: GameState, npc_id: str) -> bool:
-    """The non-trust routes to a clue: covering the tab (Mara) or a promise (Jun)."""
-    if npc_id == "mara":
-        return "covered_tab" in state.flags
-    if npc_id == "jun":
-        return state.npcs["jun"].has_fact("promised")
-    return False
+    """A deal for what they want (or Nico's rush patient) opens the clue."""
+    return f"want_done:{npc_id}" in state.flags or (npc_id == "nico" and "helped_e3" in state.flags)
 
 
 def clue_locked(state: GameState, npc_id: str) -> bool:
-    """Nico won't share if he saw you flirt with Mara, unless you helped him in E3."""
-    return npc_id == "nico" and "nico_knows_flirt" in state.flags and "helped_e3" not in state.flags
+    """Nico shuts you out if he saw you flirt with Mara or you sold Mara out to Jun,
+    unless you stayed and helped him in E3."""
+    burned = "nico_knows_flirt" in state.flags or "mara_exposed" in state.flags
+    return npc_id == "nico" and burned and "helped_e3" not in state.flags
 
 
 def legal_actions(state: GameState, npc_id: str) -> dict:

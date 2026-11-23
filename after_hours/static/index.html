@@ -54,6 +54,18 @@
   .tbar { height: 6px; background: var(--line); border-radius: 3px; position: relative; }
   .tbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--cyan); }
   .tbar u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--amber); }
+  .sallow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #ff8a8a; min-width: 0; }
+  #sallow-where { max-width: 230px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  header { gap: 12px !important; } header .pill { white-space: nowrap; }
+  .sallow .pips { display: flex; gap: 3px; } .sallow .pips span { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #5a2630; }
+  .sallow .pips span.on { background: #ff4d5e; border-color: #ff4d5e; box-shadow: 0 0 8px #ff4d5e; }
+  .msg.hunt { align-self: center; font-size: 12px; color: #ff8a8a; padding: 2px 10px; border: 1px solid rgba(255,77,94,.4); border-radius: 99px; }
+  .deals { border-top: 1px dashed var(--line); padding-top: 8px; }
+  button.deal { border-color: rgba(255,200,87,.5); } button.deal.risky { border-style: dashed; color: #ffd98a; }
+  .lead .want { font-size: 12px; color: var(--amber); margin: 0 0 6px; }
+  .hideouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+  .hideouts button { display: flex; flex-direction: column; gap: 4px; border-color: rgba(255,62,165,.5); }
+  .hideouts button b { color: var(--pink); } .hideouts button span { font-size: 12px; color: var(--muted); }
   .howto { align-self: stretch; max-width: none; border: 1px solid var(--cyan); background: rgba(46,230,255,.05); border-radius: 12px; padding: 14px 16px; }
   .howto b { color: var(--cyan); letter-spacing: .1em; font-size: 12px; } .howto ol { margin: 8px 0 0; padding-left: 20px; } .howto li { margin: 4px 0; }
   .meter { display: grid; grid-template-columns: 46px 1fr; gap: 2px 8px; font-size: 12px; margin-bottom: 8px; align-items: center; }
@@ -76,7 +88,8 @@
                 border: 1px solid var(--pink); color: #fff; box-shadow: 0 0 30px -10px var(--pink); }
   .typing { align-self: flex-start; color: var(--muted); font-size: 13px; display: none; }
   .typing.on { display: block; }
-  .controls { border-top: 1px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 8px; background: rgba(7,7,13,.6); }
+  .controls { border-top: 1px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 8px; background: rgba(7,7,13,.6);
+              max-height: 46vh; overflow-y: auto; }
   .choices { display: flex; flex-wrap: wrap; gap: 8px; }
   .choices.col { flex-direction: column; }
   .choices.small button { padding: 7px 11px; font-size: 14px; }
@@ -91,7 +104,9 @@
   .ending-title { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 0 14px var(--pink); }
   .err { color: #ff7b7b; font-size: 13px; min-height: 1em; }
   @media (max-width: 760px) {
-    main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .app { height: auto; min-height: 100vh; }
+    main { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+    .stage { height: 82vh; }
     aside { flex-direction: row; overflow-x: auto; max-height: 180px; } .portrait { width: 90px; font-size: 36px; }
     aside > div { min-width: 220px; } .msg { max-width: 92%; }
   }
@@ -103,6 +118,7 @@
     <h1>AFTER HOURS</h1>
     <div class="clock" id="clock">MIDNIGHT</div>
     <div class="hours" id="hours"></div>
+    <div class="sallow" title="Sallow, Veyra's hunter, is looking for Rook too."><b>SALLOW</b><div class="pips" id="pips"></div><span id="sallow-where"></span></div>
     <div class="spacer"></div>
     <span class="pill" id="credits"></span>
     <span class="pill" id="mode"></span>
@@ -182,6 +198,8 @@ function render() {
   $("clock").textContent = snap.phase === "dawn" ? "4:00 AM · DAWN" : snap.slot.toUpperCase().replace("AM", " AM");
   $("hours").replaceChildren(...SLOTS.map((_, j) => el("span", { class: snap.phase === "dawn" || j < i ? "past" : j === i ? "now" : "" })));
   $("credits").textContent = `${snap.credits} credits`;
+  $("pips").replaceChildren(...Array.from({ length: snap.sallow.max }, (_, j) => el("span", { class: j < snap.sallow.heat ? "on" : "" })));
+  $("sallow-where").textContent = snap.sallow.where;
   $("mode").textContent = snap.mode === "agent" ? "Agent mode" : "Scripted mode";
 
   const p = $("portrait");
@@ -194,20 +212,29 @@ function render() {
     el("div", { class: "clue" }, el("b", {}, c.title), el("p", {}, c.text))) : [el("div", { class: "empty" }, "No clues yet. Two will lead you to Rook.")]));
 
   $("board-title").textContent = `CASE BOARD · ${Math.min(snap.case_board.length, snap.clues_needed)}/${snap.clues_needed} CLUES`;
-  const STATUS = { new: () => "Haven't met yet", met: (l) => `Trust ${l.trust} of ${l.needed} needed`,
+  const STATUS = { new: () => "Haven't met yet", met: () => "Ask what it would take.", want: (l) => `Make a deal, or earn trust ${l.needed}`,
     ready: () => "Ready to talk. Ask about Rook!", shared: () => "✓ Told you what they know", closed: () => "Won't talk to you now" };
   $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `lead ${l.status}`, style: `--c:${COLORS[l.npc]}` },
     el("div", { class: "top" }, el("b", {}, l.name), el("span", {}, l.where)),
     el("p", {}, l.hint),
+    ...(l.want ? [el("div", { class: "want" }, "Wants: " + l.want.replace(/^Wants /, ""))] : []),
     el("div", { class: "tbar", title: `Trust ${l.trust} (needs ${l.needed})` },
       el("i", { style: `width:${Math.max(0, l.trust) * 20}%` }), el("u", { style: `left:${l.needed * 20}%` })),
     el("div", { class: `status ${l.status}` }, STATUS[l.status](l)))),
-    el("div", { class: "hint" }, "Blue bar: trust. Gold line: what they need before they'll share."));
+    el("div", { class: "hint" }, "Blue bar: trust. Gold line: trust needed to talk them round without a deal."));
 
   const panel = $("panel"); panel.replaceChildren();
   if (snap.phase === "choose_location") {
-    panel.append(el("div", { class: "hint" }, "Where do you spend the next hour?"),
-      el("div", { class: "choices" }, ...snap.locations.map((l) => el("button", { onclick: () => api("visit", { location: l.id }) }, l.name))));
+    if (snap.hideouts.length) {
+      panel.append(el("div", { class: "hint" }, "Where is Rook hiding? You get one try. Use your case board."),
+        el("div", { class: "hideouts" }, ...snap.hideouts.map((h) => el("button", {
+          onclick: () => { if (confirm(`Search the ${h.name}? This is your one guess.`)) api("visit", { location: h.id }); } },
+          el("b", {}, h.name), el("span", {}, h.about)))),
+        el("div", { class: "hint" }, "Or spend the last hour with someone:"));
+    } else {
+      panel.append(el("div", { class: "hint" }, "Where do you spend the next hour?"));
+    }
+    panel.append(el("div", { class: "choices" }, ...snap.locations.map((l) => el("button", { onclick: () => api("visit", { location: l.id }) }, l.name))));
   } else if (snap.phase === "event" && snap.event) {
     panel.append(el("div", { class: "choices" }, ...Object.entries(snap.event.choices).map(([k, label]) =>
       el("button", { onclick: () => api("event", { choice: k }) }, label))));
@@ -216,6 +243,11 @@ function render() {
     const opts = el("div", { class: "choices small" }, ...snap.options.map((o, j) =>
       el("button", { onclick: () => snap.mode === "agent" ? api("say", { text: o }) : api("option", { index: j }) }, o)));
     panel.append(opts);
+    if (snap.deals.length) {
+      panel.append(el("div", { class: "deals" }, el("div", { class: "hint" }, `Deals for ${snap.npc_name}:`),
+        el("div", { class: "choices small" }, ...snap.deals.map((d) =>
+          el("button", { class: `deal ${d.risky ? "risky" : ""}`, onclick: () => api("deal", { deal: d.id }) }, d.label)))));
+    }
     if (snap.mode === "agent") {
       const input = el("input", { type: "text", maxlength: "300", placeholder: `Type anything to ${snap.npc_name}…` });
       const send = () => { const t = input.value.trim(); if (t) api("say", { text: t }); };
@@ -232,6 +264,8 @@ function render() {
     panel.append(el("div", { class: "ending-title" }, snap.ending ? snap.ending.title : "Dawn"), el("div", { class: "cards" }, ...snap.dawn_cards.map((c) => {
       const npc = c.npc.toLowerCase(), items = [];
       if (c.promise_broken) items.push("“You made me a promise.”");
+      if (c.betrayed) items.push("Knows you sold her out to Jun");
+      if (c.deal && !c.promise_broken) items.push("You kept your deal");
       c.facts.forEach((f) => items.push(FACT_TEXT[f] || f));
       c.remembers.forEach((r) => items.push(r));
       if (!items.length) items.push("Barely remembers you.");
@@ -249,9 +283,10 @@ $("restart").addEventListener("click", () => {
 function howTo() {
   const typing = snap && snap.mode === "agent";
   return el("div", { class: "msg howto" }, el("b", {}, "HOW TO PLAY"), el("ol", {},
-    el("li", {}, "Find Rook before 4 a.m. Collect 2 clues and Rook's hiding place opens at 3 a.m."),
-    el("li", {}, "Each hour, pick a place and talk to whoever is there. Each person knows one piece (see Leads)."),
-    el("li", {}, "They'll only share once they trust you. Be honest, be kind, keep promises. Lies and shouting about Rook cost you."),
+    el("li", {}, "Find Rook before 4 a.m. Each hour, pick a place and talk to whoever is there. Each person knows one piece."),
+    el("li", {}, "Everyone wants something. Ask what it would take, then make a deal (some are gambles, some betray someone else)."),
+    el("li", {}, "Sallow is hunting Rook too. Every hour he gets closer. Shouting about Rook or getting caught lying speeds him up."),
+    el("li", {}, "At 3 a.m. you choose where Rook is hiding. One guess. Read your clues carefully."),
     el("li", {}, typing ? "Type anything you want. The suggestions are just ideas. They remember what you say." :
       "Pick what to say from the menu. Watch for events: some are shortcuts.")));
 }

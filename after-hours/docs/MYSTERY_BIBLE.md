@@ -5,6 +5,14 @@
 
 ---
 
+## 0. v0.3 changes (Nov 22, approved by me after play-testing)
+
+- **Clue text** is now evidence for deduction (see `after_hours/content.py` CLUES): C1 adds "Rook's bike was still chained out front: Rook went on foot." C2 adds "the drop was at the canal docks" (a red herring) and "Rook has a key to the Kessler service floors." C3 now says Rook "headed east toward the Kessler building, asking where the cameras don't reach" (it no longer names the lift).
+- **Wants and deals** replace the trades in Section 4: Mara (contractor out: pay 10 credits, bluff, or E2), Jun (promise the chip, or sell out Mara), Nico (swear to keep Mara out; fails if you sold her out).
+- **E1** is now a kindness only. **E4** fires when Sallow's track is at 3+, not on asking twice. **E5** footage is its own evidence.
+- **Hideouts** at 3 a.m.: canal docks, night-market cold storage, Kessler freight lift (correct in Variant A).
+- **Endings**: a wrong hideout or Sallow at the lift without an ally is Last call.
+
 ## 1. The truth (Variant A, the main game)
 
 Rook, your closest friend, is a courier. Last night Jun, a fixer, hired Rook to carry a stolen data chip from **Veyra Dynamics** across the Kessler block to a buyer. A Veyra security contractor, **Sallow** (grey corp jacket, polite, cold), had been tracking the chip.

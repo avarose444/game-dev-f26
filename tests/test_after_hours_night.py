@@ -1,8 +1,9 @@
-"""Deterministic tests for the full night: events, clue routes, finale and endings."""
+"""Deterministic tests for the full night (v0.3): deals, the hunt, deduction, endings."""
 
 import json
 import unittest
 
+from after_hours.content import WANT_ASK
 from after_hours.night import Night
 from after_hours.state import Fact
 
@@ -11,8 +12,8 @@ def scripted_night() -> Night:
     return Night("scripted")
 
 
-def option(night: Night, tag_text: str) -> int:
-    return next(i for i, o in enumerate(night.options()) if o.startswith(tag_text))
+def option(night: Night, start: str) -> int:
+    return next(i for i, o in enumerate(night.options()) if o.startswith(start))
 
 
 def skip_slot(night: Night, location: str = "clinic") -> None:
@@ -23,6 +24,10 @@ def skip_slot(night: Night, location: str = "clinic") -> None:
         night.leave()
 
 
+def learn_want(night: Night) -> None:
+    night.choose_option(night.options().index(WANT_ASK))
+
+
 class NightFlowTests(unittest.TestCase):
     def test_four_slots_then_dawn(self):
         night = scripted_night()
@@ -31,44 +36,115 @@ class NightFlowTests(unittest.TestCase):
         self.assertEqual(night.phase, "dawn")
         self.assertEqual(night.ending, "last_call")
 
-    def test_lift_needs_two_clues_at_three(self):
+    def test_hideouts_only_at_three(self):
         night = scripted_night()
+        self.assertEqual(night.hideouts(), [])
         for _ in range(3):
             skip_slot(night, "rooftop")
         self.assertEqual(night.state.slot, "3am")
-        self.assertNotIn("lift", night.locations())
-        night2 = scripted_night()
-        night2.state.case_board = ["C1", "C3"]
-        for _ in range(3):
-            skip_slot(night2, "rooftop")
-        self.assertIn("lift", night2.locations())
+        self.assertEqual(set(night.hideouts()), {"docks", "cold_storage", "lift"})
 
     def test_conversation_capped_at_six_exchanges(self):
         night = scripted_night()
         night.visit("rooftop")
         for _ in range(6):
-            night.choose_option(0)
+            night.choose_option(0)          # asking about Rook can be repeated
         self.assertEqual(night.state.slot, "1am")
-        self.assertEqual(night.phase, "choose_location")
+
+    def test_sallow_gets_closer_every_hour(self):
+        night = scripted_night()
+        for _ in range(3):
+            skip_slot(night, "rooftop")
+        self.assertEqual(night.heat, 3)
+
+
+class DealTests(unittest.TestCase):
+    def test_asking_what_it_takes_reveals_the_want_and_deals(self):
+        night = scripted_night()
+        night.visit("rooftop")
+        self.assertEqual(night.deals(), [])
+        learn_want(night)
+        self.assertIn("jun_promise", [d["id"] for d in night.deals()])
+
+    def test_deal_gives_the_clue_right_away(self):
+        night = scripted_night()
+        night.visit("rooftop")
+        learn_want(night)
+        night.make_deal("jun_promise")
+        self.assertIn("C2", night.state.case_board)
+        self.assertTrue(night.state.npcs["jun"].has_fact("promised"))
+
+    def test_paying_off_the_contractor_slows_sallow(self):
+        night = scripted_night()
+        night.visit("lantern")
+        night.choose_event("ignore")
+        learn_want(night)
+        night.make_deal("mara_pay")
+        self.assertEqual(night.state.credits, 10)
+        self.assertIn("C1", night.state.case_board)
+        self.assertEqual(night.heat, 0)   # can't go below 0
+
+    def test_bluff_works_early_and_fails_late(self):
+        early = scripted_night()
+        early.visit("lantern")
+        early.choose_event("ignore")
+        learn_want(early)
+        early.make_deal("mara_bluff")
+        self.assertIn("C1", early.state.case_board)
+
+        late = scripted_night()
+        late.heat = 3
+        late.visit("lantern")
+        late.choose_event("ignore")
+        learn_want(late)
+        late.make_deal("mara_bluff")
+        self.assertNotIn("C1", late.state.case_board)
+        self.assertEqual(late.heat, 5)
+
+    def test_selling_mara_out_closes_nico(self):
+        night = scripted_night()
+        night.state.case_board.append("C1")
+        night.visit("rooftop")
+        learn_want(night)
+        night.make_deal("jun_sell")
+        self.assertIn("C2", night.state.case_board)
+        night.leave()
+        night.visit("clinic")
+        learn_want(night)
+        night.make_deal("nico_swear")
+        self.assertNotIn("C3", night.state.case_board)
+        self.assertEqual(next(l for l in night.leads() if l["npc"] == "nico")["status"], "closed")
+
+    def test_jun_sell_needs_maras_clue(self):
+        night = scripted_night()
+        night.visit("rooftop")
+        learn_want(night)
+        self.assertNotIn("jun_sell", [d["id"] for d in night.deals()])
 
 
 class EventTests(unittest.TestCase):
-    def test_e1_cover_trades_for_c1(self):
+    def test_e1_cover_is_kindness(self):
         night = scripted_night()
         night.visit("lantern")
         night.choose_event("cover")
         self.assertEqual(night.state.credits, 15)
-        night.choose_option(0)
+        self.assertTrue(night.state.npcs["mara"].has_fact("kindness"))
+
+    def test_e2_words_gets_the_contractor_out(self):
+        night = scripted_night()
+        skip_slot(night, "rooftop")
+        night.visit("lantern")
+        night.choose_event("words")
+        self.assertTrue(night.want_done("mara"))
         self.assertIn("C1", night.state.case_board)
 
-    def test_e2_punch_closes_the_lantern_and_ends_visit(self):
+    def test_e2_punch_closes_the_lantern(self):
         night = scripted_night()
         skip_slot(night, "rooftop")
         night.visit("lantern")
         night.choose_event("punch")
         self.assertEqual(night.state.slot, "2am")
         self.assertNotIn("lantern", night.locations())
-        self.assertEqual(night.state.npcs["nico"].trust, 2)
 
     def test_flirting_in_front_of_nico_locks_c3(self):
         night = scripted_night()
@@ -77,98 +153,88 @@ class EventTests(unittest.TestCase):
         night.choose_event("stay_out")
         night.choose_option(option(night, "Your eyes"))
         self.assertIn("nico_knows_flirt", night.state.flags)
-        night.leave()
-        night.state.npcs["nico"].trust = 5
-        night.visit("clinic")
-        night.choose_event("leave")       # E3 at 2am, didn't help
-        night.choose_option(0)
-        self.assertNotIn("C3", night.state.case_board)
 
-    def test_e3_help_gives_c3_even_after_flirt_and_uses_the_hour(self):
+    def test_e3_help_gives_c3_even_when_burned(self):
         night = scripted_night()
-        night.state.flags.add("nico_knows_flirt")
+        night.state.flags.add("mara_exposed")
         skip_slot(night, "rooftop")
         skip_slot(night, "rooftop")
         night.visit("clinic")
         night.choose_event("help")
         self.assertIn("C3", night.state.case_board)
-        self.assertEqual(night.state.slot, "3am")
 
-    def test_e4_fires_after_asking_openly_twice(self):
+    def test_e4_fires_when_sallow_is_close(self):
         night = scripted_night()
         night.visit("rooftop")
-        night.choose_option(option(night, "HEY"))
-        night.leave()
-        night.visit("clinic")
-        night.choose_option(option(night, "ROOK!"))
-        night.leave()
-        night.visit("rooftop")            # 2am, Jun trust is low: no one hides you
+        night.choose_option(option(night, "HEY"))      # asked openly: heat +1
+        night.leave()                                   # +1
+        skip_slot(night, "rooftop")                     # +1 -> 3
+        night.visit("rooftop")
         self.assertEqual(night.current_event()["id"], "E4")
-        self.assertEqual(list(night.current_event()["choices"]), ["walk"])
         night.choose_event("walk")
-        self.assertIn("tail_on_you", night.state.flags)
-
-    def test_e4_hide_offered_when_trusted(self):
-        night = scripted_night()
-        night.state.npcs["mara"].facts.append(Fact("asked_openly", "", "x"))
-        night.state.npcs["jun"].facts.append(Fact("asked_openly", "", "x"))
-        night.state.npcs["mara"].trust = 2
-        skip_slot(night, "rooftop")
-        skip_slot(night, "rooftop")
-        night.visit("lantern")
-        self.assertEqual(list(night.current_event()["choices"]), ["hide"])
+        self.assertEqual(night.heat, 5)
 
     def test_e5_needs_a_promise_to_jun(self):
         night = scripted_night()
-        skip_slot(night, "clinic")
         night.visit("rooftop")
-        self.assertIsNone(night.current_event())
-        night.choose_option(option(night, "I'll get back"))
+        learn_want(night)
+        night.make_deal("jun_promise")
         night.leave()
         night.visit("rooftop")
         self.assertEqual(night.current_event()["id"], "E5")
         night.choose_event("watch")
-        self.assertIn("C1", night.state.case_board)
+        self.assertIn("E5", night.state.case_board)
 
 
 class EndingTests(unittest.TestCase):
-    def at_lift(self, **flags) -> Night:
+    def at_three(self, heat=None, flags=(), trust=None) -> Night:
         night = scripted_night()
-        night.state.case_board = ["C1", "C2"]
-        for flag in flags.get("flags", []):
-            night.state.flags.add(flag)
-        for npc, trust in flags.get("trust", {}).items():
-            night.state.npcs[npc].trust = trust
-        for npc, tag in flags.get("facts", []):
-            night.state.npcs[npc].facts.append(Fact(tag, "", "x"))
         for _ in range(3):
             skip_slot(night, "rooftop")
-        night.visit("lift")
+        if heat is not None:
+            night.heat = heat
+        night.state.flags.update(flags)
+        for npc, value in (trust or {}).items():
+            night.state.npcs[npc].trust = value
         return night
 
+    def test_wrong_hideout_is_last_call(self):
+        night = self.at_three()
+        night.visit("docks")
+        self.assertEqual(night.ending, "last_call")
+
     def test_keep_the_chip_is_paid_in_full(self):
-        night = self.at_lift(facts=[("jun", "promised")])
+        night = self.at_three(flags={"want_done:jun"})
+        night.visit("lift")
         night.choose_finale("keep")
         self.assertEqual(night.ending, "paid_in_full")
         self.assertTrue(next(c for c in night.dawn_cards() if c["npc"] == "Jun")["promise_broken"])
 
-    def test_return_with_jun_promise_is_out_by_dawn(self):
-        night = self.at_lift(facts=[("jun", "promised")])
+    def test_return_with_jun_deal_is_out_by_dawn(self):
+        night = self.at_three(flags={"want_done:jun"})
+        night.visit("lift")
         night.choose_finale("return")
         self.assertEqual(night.ending, "out_by_dawn")
 
     def test_destroy_needs_an_ally(self):
-        night = self.at_lift()
+        night = self.at_three()
+        night.visit("lift")
         night.choose_finale("destroy")
         self.assertEqual(night.ending, "last_call")
-        night = self.at_lift(trust={"nico": 3})
+        night = self.at_three(trust={"nico": 3})
+        night.visit("lift")
         night.choose_finale("destroy")
         self.assertEqual(night.ending, "out_by_dawn")
 
-    def test_tail_ruins_the_rescue(self):
-        night = self.at_lift(trust={"mara": 5}, flags=["tail_on_you"])
-        night.choose_finale("destroy")
+    def test_sallow_at_the_lift_without_allies(self):
+        night = self.at_three(heat=5)
+        night.visit("lift")
         self.assertEqual(night.ending, "last_call")
+
+    def test_sallow_at_the_lift_with_an_ally(self):
+        night = self.at_three(heat=5, flags={"want_done:mara"})
+        night.visit("lift")
+        self.assertEqual(night.phase, "finale")
 
     def test_not_found_after_flirt_is_morning_after(self):
         night = scripted_night()
@@ -182,8 +248,7 @@ class GuidanceTests(unittest.TestCase):
     def test_used_menu_options_disappear(self):
         night = scripted_night()
         night.visit("rooftop")
-        promise = option(night, "I'll get back")
-        night.choose_option(promise)
+        night.choose_option(option(night, "I'll get back"))
         self.assertFalse(any(o.startswith("I'll get back") for o in night.options()))
 
     def test_trust_ticks_and_fact_cue_are_shown(self):
@@ -194,31 +259,27 @@ class GuidanceTests(unittest.TestCase):
         self.assertIn("Jun: trust +2", texts)
         self.assertIn("Jun will hold you to that promise.", texts)
 
-    def test_nudge_when_ready_to_talk(self):
-        night = scripted_night()
-        night.visit("lantern")
-        feed = night.choose_event("cover")
-        self.assertIn("Mara seems ready to talk. Ask about Rook.", [m["text"] for m in feed])
-        self.assertEqual(next(l for l in night.leads() if l["npc"] == "mara")["status"], "ready")
-
-    def test_agent_suggestions_rotate(self):
-        night = Night("agent", model_fn=lambda s, u: (_ for _ in ()).throw(TimeoutError()))
+    def test_agent_suggestions_rotate_and_want_is_learned(self):
+        def timeout(system, user):
+            raise TimeoutError
+        night = Night("agent", model_fn=timeout)
         night.visit("rooftop")
         first = night.options()
-        night.say(first[1])
-        self.assertNotIn(first[1], night.options())
+        night.say(first[-1])
+        self.assertNotIn(first[-1], night.options())
+        night.say(WANT_ASK)
+        self.assertIn("jun", night.want_known)
 
 
 class AgentModeTests(unittest.TestCase):
     def test_agent_mode_uses_the_validated_agent_and_falls_back(self):
         def timeout(system, user):
             raise TimeoutError
-
         night = Night("agent", model_fn=timeout)
         night.visit("rooftop")
         feed = night.say("What was Rook doing for you?")
-        self.assertEqual(feed[-1]["kind"], "npc")
-        self.assertEqual(night.state.log[-1]["fallback"], True)
+        self.assertTrue(any(m["kind"] == "npc" for m in feed))
+        self.assertTrue(night.state.log[-1]["fallback"])
 
     def test_snapshot_is_json_serializable(self):
         night = scripted_night()

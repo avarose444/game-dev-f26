@@ -13,7 +13,8 @@ PERSONAS = {
         "name": "Mara",
         "role": "Bartender at the Lantern, a neon dive bar in the Kessler block.",
         "voice": "Dry, quick, warm underneath. Short sentences. Calls people 'kid' when she likes them.",
-        "wants": "To keep the Lantern out of corp trouble, and for Rook to be okay.",
+        "wants": "The Veyra contractor drinking in the corner gone from your bar; he's been watching your door "
+                 "all night. If the player asks what it would take, tell them: get him out and you'll talk.",
         "fears": "Corp security noticing her bar. Getting Nico hurt.",
         "relationships": "Nico, the street medic, is her partner. She likes Rook; Rook owes her money. "
                          "She doesn't trust Jun's work.",
@@ -30,7 +31,8 @@ PERSONAS = {
         "role": "Freelance fixer who does business on the Kessler building rooftop.",
         "voice": "Smooth, amused, transactional. Talks in deals ('What's it worth to you?'). Never raises "
                  "his voice. Calls people by their full name.",
-        "wants": "Something of his back that Rook was carrying, or at least not to be blamed for losing it.",
+        "wants": "What Rook was carrying for you, back. If the player asks what it would take: promise to bring "
+                 "it back, or tell you who took Rook. Then you'll talk.",
         "fears": "A corporation tracing trouble back to him. Looking weak.",
         "relationships": "Rook is his most reliable courier, 'a little soft.' Knows Mara and Nico; doesn't "
                          "care much about either.",
@@ -46,7 +48,8 @@ PERSONAS = {
         "name": "Nico",
         "role": "Street medic who runs a clinic stall in the night market.",
         "voice": "Tired, careful, few words. Gentle with patients, guarded with everyone else. Doesn't swear.",
-        "wants": "To keep his stall running and stay invisible to the corps.",
+        "wants": "Mara kept out of this mess. If the player asks what it would take: swear to keep Mara out "
+                 "of it, and you'll tell them what you know.",
         "fears": "Being dragged into Jun's business. Anyone hurting Mara.",
         "relationships": "Mara is his partner. He dislikes Jun. Rook has been his patient before.",
         "holding_back": "You saw Rook tonight and you're not ready to say anything about it. Don't hint at "
@@ -87,24 +90,26 @@ CLUES = {
         "npc": "mara",
         "title": "Who Rook left with",
         "line": "Rook left here at 11:30 with a man in a grey corp jacket. He paid Rook's tab in cash. "
-                "He didn't look like a friend.",
+                "Rook's bike was still chained out front at closing. Wherever Rook went, they went on foot.",
         "keywords": ["11:30", "1130", "eleven thirty", "half eleven", "half past eleven", "grey jacket",
-                     "gray jacket", "corp jacket", "paid rook's tab", "paid the tab", "paid in cash"],
+                     "gray jacket", "corp jacket", "paid rook's tab", "paid the tab", "paid in cash",
+                     "bike", "on foot"],
     },
     "C2": {
         "npc": "jun",
         "title": "The job",
-        "line": "Fine. I gave Rook a chip at nine. Veyra Dynamics property, and Veyra wants it back. "
-                "The drop never happened. If someone else has Rook, they have my chip.",
-        "keywords": ["veyra", "chip", "the drop", "a drop", "drop never", "package", "the cargo"],
+        "line": "I gave Rook a Veyra Dynamics chip at nine, for a drop at the canal docks at one. The drop "
+                "never happened. And Rook still has a key to the Kessler service floors, from an old job of mine.",
+        "keywords": ["veyra", "chip", "the drop", "a drop", "drop never", "package", "the cargo", "canal docks",
+                     "service floor", "a key"],
     },
     "C3": {
         "npc": "nico",
         "title": "Where Rook went",
-        "line": "Rook came to me around one, cut on the arm. I stitched it. Rook headed toward the Kessler "
-                "building after, toward the old freight lift. That's all.",
+        "line": "Rook came to me around one, cut on the arm. I stitched it. Then Rook headed east, toward the "
+                "Kessler building, asking me where the cameras don't reach.",
         "keywords": ["stitch", "cut on", "the arm", "freight", "the lift", "kessler building",
-                     "patched rook", "patched them"],
+                     "patched rook", "patched them", "headed east", "cameras don't"],
     },
 }
 
@@ -187,7 +192,7 @@ EVENTS = {
 }
 
 FINALE = {
-    "text": "You force the lift doors. Rook is inside, pale, arm bandaged, a data chip in their fist. "
+    "text": "You force the dead lift doors. Rook is inside, pale, arm bandaged, a data chip in their fist. "
             "\"You came. I didn't know who else to trust.\"",
     "choices": {"return": "Take the chip back to Jun", "destroy": "Destroy the chip",
                 "keep": "Keep the chip and tell Rook to run"},
@@ -258,3 +263,56 @@ FACT_CUES = {
     "flirted": "{name} noticed the flirting.",
     "asked_openly": "People heard you asking about Rook out loud.",
 }
+
+# ---------- v0.3: wants and deals, deduction, Sallow's hunt (GDD Section 6, Nov 22 redesign) ----------
+
+WANT_ASK = "What would it take?"
+WANTS = {
+    "mara": {"hint": "Wants the Veyra contractor out of her bar.",
+             "line": "Mara nods at the corner booth. \"See him? Veyra muscle. He's watched my door all night. "
+                     "Get him out of my bar, and I'll tell you what I saw.\""},
+    "jun": {"hint": "Wants his chip back, or to know who took Rook.",
+            "line": "Jun smiles. \"Rook was carrying something of mine. Promise it comes back to me, or tell me "
+                    "who took Rook. Then we talk.\""},
+    "nico": {"hint": "Wants Mara kept out of this.",
+             "line": "Nico finally looks up. \"Mara's in deep enough already. Swear you'll keep her out of it, "
+                     "and I'll tell you what I saw.\""},
+}
+
+# Deals: what you can offer once you know what someone wants.
+DEALS = {
+    "mara_pay": {"npc": "mara", "label": "Pay the contractor to leave (10 credits)", "risky": False},
+    "mara_bluff": {"npc": "mara", "label": "Bluff him: \"Veyra's recalling you. Now.\" (risky)", "risky": True},
+    "jun_promise": {"npc": "jun", "label": "Promise to bring the chip back to him", "risky": False},
+    "jun_sell": {"npc": "jun", "label": "Tell him who took Rook, and that Mara saw it (needs Mara's clue)", "risky": True},
+    "nico_swear": {"npc": "nico", "label": "Swear you'll keep Mara out of it", "risky": False},
+}
+
+# Extra evidence that isn't any one NPC's clue.
+EXTRA_EVIDENCE = {
+    "E5": {"title": "Drone footage",
+           "line": "Rook breaking away from the grey jacket in the alley and running east, toward the Kessler building."},
+}
+
+# Where Rook might be. The player chooses at 3 a.m.; only one is right.
+HIDEOUTS = {
+    "docks": {"name": "Canal docks", "about": "Where Jun's drop was meant to happen. Far west; Veyra cameras on every pier.",
+              "wrong": "The docks are crawling with Veyra security. Rook was never here. Across the district, "
+                       "someone else finds Rook first."},
+    "cold_storage": {"name": "Night-market cold storage", "about": "Behind the clinic stalls. Cold, quiet, a camera over the door.",
+                     "wrong": "Ice, fish crates, a humming camera. No Rook. By the time you're back on the street, "
+                              "it's too late."},
+    "lift": {"name": "Kessler freight lift", "about": "A dead service lift under the Kessler building. No power, no cameras.",
+             "wrong": ""},
+}
+ROOK_IS_AT = "lift"
+
+SALLOW_MAX = 5
+SALLOW_STEPS = [
+    "Sallow is checking the canal docks.",
+    "Sallow is checking the canal docks.",
+    "Sallow is working the night market.",
+    "Sallow is asking questions on the Kessler block.",
+    "Sallow is inside the Kessler building.",
+    "Sallow is at the freight lift.",
+]

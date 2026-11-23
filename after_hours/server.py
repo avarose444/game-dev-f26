@@ -34,6 +34,8 @@ class Game:
             n.say(str(body["text"]))
         elif action == "option":
             n.choose_option(int(body["index"]))
+        elif action == "deal":
+            n.make_deal(body["deal"])
         elif action == "leave":
             n.leave()
         elif action == "finale":

@@ -146,16 +146,17 @@ class ConsistencyTests(unittest.TestCase):
 
 
 class RulesTests(unittest.TestCase):
-    def test_clue_needs_trust_three(self):
+    def test_clue_needs_trust_four_by_talk_alone(self):
         state = GameState()
-        self.assertNotIn("reveal_clue", rules.legal_actions(state, "mara")["actions"])
         state.npcs["mara"].trust = 3
+        self.assertNotIn("reveal_clue", rules.legal_actions(state, "mara")["actions"])
+        state.npcs["mara"].trust = 4
         self.assertIn("reveal_clue", rules.legal_actions(state, "mara")["actions"])
 
     def test_lie_raises_threshold_and_blocks_commitments(self):
         state = GameState()
         npc = state.npcs["mara"]
-        npc.trust = 3
+        npc.trust = 4
         npc.facts.append(Fact("lied_to", "claimed to be family", "I'm Rook's sister"))
         legal = rules.legal_actions(state, "mara")
         self.assertNotIn("reveal_clue", legal["actions"])
@@ -163,13 +164,13 @@ class RulesTests(unittest.TestCase):
 
     def test_kindness_lowers_threshold(self):
         state = GameState()
-        state.npcs["mara"].trust = 2
+        state.npcs["mara"].trust = 3
         state.npcs["mara"].facts.append(Fact("kindness", "covered a stranger's drink", "I'll get it"))
         self.assertIn("reveal_clue", rules.legal_actions(state, "mara")["actions"])
 
-    def test_covering_the_tab_trades_for_the_clue(self):
+    def test_a_finished_deal_opens_the_clue(self):
         state = GameState()
-        state.flags.add("covered_tab")
+        state.flags.add("want_done:mara")
         self.assertIn("reveal_clue", rules.legal_actions(state, "mara")["actions"])
 
     def test_deltas_clamped_per_turn_and_conversation(self):
@@ -233,7 +234,7 @@ class FallbackTests(unittest.TestCase):
         from after_hours.agent import READY_TO_SHARE, build_context
         state = GameState()
         self.assertNotEqual(build_context(state, "mara", "hi")["you"]["holding_back"], READY_TO_SHARE)
-        state.npcs["mara"].trust = 3
+        state.npcs["mara"].trust = 4
         self.assertEqual(build_context(state, "mara", "hi")["you"]["holding_back"], READY_TO_SHARE)
 
     def test_long_fact_detail_is_trimmed_not_dropped(self):

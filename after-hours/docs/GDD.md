@@ -17,6 +17,7 @@
 
 **Change history.**
 - *G1 (Nov 15):* I narrowed an open-world GTA / Cyberpunk / Sims life sim to one block, one night and three NPCs who remember you. [Accepted by me on Nov 15.]
+- *v0.3 (Nov 22):* After my own play-through I found the v0.2 loop not fun: trust-grinding worked like a vending machine, clues were handed over, and nothing pushed back. Three changes, accepted by me as Creative Director: **wants and deals**, **deduction**, and **Sallow's hunt** (Section 6A). [DECISION, Nov 22.]
 - *v0.2 (Nov 19):* The Braintrust said the night had no goal and that it was unclear what memory actually changes. The night now has an objective (find Rook), authored events, and endings decided by what NPCs remember about you. Relationships are no longer the goal; **they are how you reach it.** [DECISION, Nov 19.]
 
 ## 2. Player and motivation
@@ -52,6 +53,17 @@
 | **Respond** | The NPC replies in character and may take a validated action: reveal a clue, make a commitment, refuse, leave. Meters move. The NPC may remember the moment, and some remembered moments (a lie, a promise, a kindness) become **facts the game acts on.** |
 | **Interpret** | The player reads the reaction, sees meter changes, the "Mara will remember that" cue, and any clue added to the **case board**. |
 | **Next action** | Push for the clue, repair the relationship, or spend the next hour elsewhere. |
+
+## 6A. v0.3 core loop (supersedes Sections 6–8 where they conflict)
+
+| Change | Rule | Why |
+|---|---|---|
+| **Wants and deals** | Each person wants something: Mara wants the Veyra contractor out of her bar, Jun wants his chip back or to know who took Rook, Nico wants Mara kept out of it. Ask "What would it take?" (or talk; the agent knows its want) and deals appear. A deal gets the clue at once. Talking someone round without a deal needs Trust 4 (5 after a caught lie, 3 after a kindness). | Turns conversation into reading people and choosing what to give up, instead of filling a meter. |
+| **Gambles and betrayals** | The bluff on the contractor works if Sallow isn't close yet (heat ≤ 2); otherwise it fails, costs Mara's trust and brings Sallow closer. Telling Jun "Mara saw who took Rook" gets Jun's clue but exposes Mara: Nico shuts you out (unless you helped him in E3) and Mara's trust drops. | Real trade-offs between people; choices you regret. |
+| **Deduction** | Clues are evidence, not directions: C1 "Rook left on foot," C2 "drop at the canal docks (herring) and a key to the Kessler service floors," C3 "headed east toward Kessler, asking where cameras don't reach," E5 footage "running east." At 3 a.m. you choose one of three hideouts (canal docks, night-market cold storage, Kessler freight lift). One guess; a wrong guess ends in Last call. | The player solves it. Two clues make the answer clear; one makes it a 50/50. |
+| **Sallow's hunt** | A visible track (0–5). +1 every hour, +1 for asking loudly, +1 for a caught lie, +2 for a failed bluff or walking away from him in E4; −1 when the contractor leaves or someone hides you. E4 fires at 2 a.m. if he's at 3+. At 5 he's at the lift when you arrive: without an ally (a kept deal or Trust 3+), Last call. | Pressure and a reason to be careful in agent conversations. |
+
+**Effect on the hypothesis:** stronger. In agent mode the player's own words decide whether a lie is caught (Sallow closer, door closed) and how quickly someone warms up; in scripted mode only the menu options can.
 
 ## 6. The mystery
 
