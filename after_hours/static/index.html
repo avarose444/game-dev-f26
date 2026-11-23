@@ -6,194 +6,259 @@
 <title>After Hours</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Josefin+Sans:wght@300;400;600&family=Poiret+One&family=Yellowtail&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #060405;          /* the dark */
-    --velvet: #5c0a10;       /* curtain red, deep */
-    --red: #b3141f;          /* curtain red, lit */
-    --lamp: #e7c891;         /* warm lamplight */
-    --paper: #ece4d6;        /* text */
-    --dim: #8b8079;          /* quiet text */
-    --faint: #3a2f2e;        /* hairlines */
-    --blue: #3b5bff;         /* the one cold accent: evidence */
-    --serif: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
-    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --night: #0c0920;        /* Hollywood-hills midnight */
+    --panel: rgba(17, 12, 40, .78);
+    --gold: #d6b46a;         /* champagne / brass */
+    --gold-dim: #6f5a33;
+    --pink: #ff3d9a;         /* neon */
+    --cyan: #2de2ff;         /* neon */
+    --violet: #b18cff;       /* neon */
+    --text: #eee6ff;
+    --soft: #a99fc8;
+    --hair: rgba(214, 180, 106, .28);
+    --script: "Yellowtail", "Brush Script MT", cursive;
+    --deco: "Poiret One", "Josefin Sans", sans-serif;
+    --caps: "Josefin Sans", "Futura", "Avenir Next", sans-serif;
+    --serif: "Cormorant Garamond", Georgia, serif;
+    --mara: var(--pink); --jun: var(--cyan); --nico: var(--violet);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
-  body {
-    background: var(--ink); color: var(--paper); font: 15px/1.6 var(--sans); overflow: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-  /* Stage dressing: vignette, faint curtain folds at the edges, film grain */
-  .vignette { position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background: radial-gradient(ellipse 70% 60% at 50% 42%, rgba(92,10,16,.22) 0%, rgba(6,4,5,0) 55%),
-                radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.85) 100%); }
-  .curtain { position: fixed; top: 0; bottom: 0; width: 7vw; max-width: 90px; pointer-events: none; z-index: 0; opacity: .8;
-    background: repeating-linear-gradient(90deg, #2a0306 0 9px, #4a070d 9px 16px, #2a0306 16px 26px); }
-  .curtain.l { left: 0; mask-image: linear-gradient(90deg, #000 0%, transparent 100%); -webkit-mask-image: linear-gradient(90deg, #000, transparent); }
-  .curtain.r { right: 0; mask-image: linear-gradient(270deg, #000 0%, transparent 100%); -webkit-mask-image: linear-gradient(270deg, #000, transparent); }
-  .grain { position: fixed; inset: -50%; pointer-events: none; z-index: 5; opacity: .07; animation: grain 1.2s steps(6) infinite;
+  body { background: var(--night); color: var(--text); font: 16px/1.55 var(--serif); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  /* ---------- Backdrop: night sky, city glow, hills, palms ---------- */
+  .sky { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 35% at 50% 100%, rgba(255, 61, 154, .28), transparent 70%),
+      radial-gradient(ellipse 45% 30% at 85% 100%, rgba(45, 226, 255, .18), transparent 70%),
+      linear-gradient(180deg, #07051a 0%, #120b30 55%, #2a1146 100%); }
+  .stars { position: fixed; inset: 0 0 40% 0; z-index: 0; pointer-events: none; opacity: .55;
+    background-image: radial-gradient(1px 1px at 12% 22%, #fff, transparent), radial-gradient(1px 1px at 33% 12%, #cfc3ff, transparent),
+      radial-gradient(1px 1px at 58% 30%, #fff, transparent), radial-gradient(1px 1px at 76% 9%, #ffd8ef, transparent),
+      radial-gradient(1px 1px at 88% 26%, #fff, transparent), radial-gradient(1px 1px at 22% 40%, #bfe9ff, transparent),
+      radial-gradient(1px 1px at 46% 6%, #fff, transparent), radial-gradient(1px 1px at 67% 44%, #fff, transparent); }
+  .hills { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; height: 34vh; z-index: 0; pointer-events: none; opacity: .9; }
+  .grain { position: fixed; inset: -50%; pointer-events: none; z-index: 6; opacity: .06; animation: grain 1.4s steps(6) infinite;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
-  @keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-3%)} 60%{transform:translate(-2%,-1%)} 80%{transform:translate(3%,3%)} 100%{transform:translate(0,0)} }
-  @media (prefers-reduced-motion: reduce) { .grain { animation: none; } .title { animation: none !important; } }
+  @keyframes grain { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-3%)} 75%{transform:translate(3%,3%)} 100%{transform:translate(0,0)} }
 
-  .app { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: 56px 1fr 40px; }
-  /* Letterbox bars */
-  .bar { background: #000; display: flex; align-items: center; gap: 22px; padding: 0 28px; border-bottom: 1px solid #120c0c; }
-  .bar.bottom { border-top: 1px solid #120c0c; border-bottom: 0; font-size: 12px; color: var(--dim); justify-content: space-between; }
-  .title { font: 500 20px/1 var(--serif); letter-spacing: .42em; color: var(--paper); text-transform: uppercase; white-space: nowrap;
-           animation: flicker 9s infinite; }
-  @keyframes flicker { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .55; } 94% { opacity: 1; } 96% { opacity: .7; } }
-  .caps { font: 600 10.5px/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--dim); }
-  .clock { font: italic 500 18px/1 var(--serif); color: var(--lamp); letter-spacing: .04em; white-space: nowrap; }
-  .sallow { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .sallow .track { display: flex; gap: 4px; }
-  .sallow .track span { width: 16px; height: 2px; background: #4a2326; }
-  .sallow .track span.on { background: var(--red); box-shadow: 0 0 6px var(--red); }
-  .sallow .where { font: italic 15px/1 var(--serif); color: #d9a5a5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
-  .spacer { flex: 1; }
-  .link { background: none; border: 0; padding: 0; color: var(--dim); font: 500 11px/1 var(--sans); letter-spacing: .2em;
-          text-transform: uppercase; cursor: pointer; white-space: nowrap; }
-  .link:hover { color: var(--paper); }
+  /* ---------- Frame ---------- */
+  .app { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: auto 1fr auto; max-width: 1320px; margin: 0 auto; padding: 0 24px; }
+  header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 14px 0 10px; }
+  .sign { text-align: center; line-height: 1; }
+  .neon { font: 400 48px/1 var(--script); color: #ffe3f1; letter-spacing: .01em;
+    text-shadow: 0 0 4px #fff, 0 0 10px var(--pink), 0 0 22px var(--pink), 0 0 42px var(--pink), 0 0 80px rgba(255,61,154,.6);
+    animation: buzz 7s infinite; }
+  @keyframes buzz { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 19%, 21% { opacity: .35; } 63% { opacity: .6; } }
+  .sign .sub { margin-top: 6px; font: 400 11px/1 var(--caps); letter-spacing: .55em; color: var(--gold); text-transform: uppercase; }
+  .hdr-left, .hdr-right { display: flex; align-items: center; gap: 18px; }
+  .hdr-right { justify-content: flex-end; }
+  .clock { font: 400 22px/1 var(--deco); color: var(--text); letter-spacing: .08em; }
+  .clock small { display: block; margin-top: 5px; font: 400 10px/1 var(--caps); letter-spacing: .32em; color: var(--soft); text-transform: uppercase; }
+  .sallow { display: flex; flex-direction: column; gap: 5px; }
+  .bulbs { display: flex; gap: 6px; }
+  .bulbs span { width: 8px; height: 8px; border-radius: 50%; background: #2a1830; box-shadow: inset 0 0 0 1px #4a2a48; }
+  .bulbs span.on { background: #ff4a5c; box-shadow: 0 0 6px #ff4a5c, 0 0 12px rgba(255,74,92,.6); }
+  .sallow small { font: 400 10px/1.2 var(--caps); letter-spacing: .24em; text-transform: uppercase; color: #ff8a96; max-width: 340px;
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip { font: 400 10.5px/1 var(--caps); letter-spacing: .28em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+  .link { background: none; border: 0; padding: 4px 0; cursor: pointer; font: 600 10.5px/1 var(--caps); letter-spacing: .28em;
+          text-transform: uppercase; color: var(--soft); white-space: nowrap; border-bottom: 1px solid transparent; }
+  .link:hover { color: var(--text); border-bottom-color: var(--pink); }
 
-  main { display: grid; grid-template-columns: 280px 1fr; min-height: 0; max-width: 1240px; width: 100%; margin: 0 auto; }
-  /* The dossier */
-  aside { padding: 28px 26px; overflow-y: auto; border-right: 1px solid var(--faint); }
-  aside section + section { margin-top: 34px; }
-  aside h2 { margin: 0 0 14px; }
-  .evidence { position: relative; padding: 2px 0 2px 14px; margin-bottom: 16px; border-left: 1px solid var(--blue); }
-  .evidence b { display: block; font: 600 10.5px/1.4 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: #9fb0ff; }
-  .evidence p { margin: 4px 0 0; font: 16px/1.45 var(--serif); color: var(--paper); }
-  .empty { font: italic 16px/1.5 var(--serif); color: var(--dim); }
-  .person { padding: 12px 0; border-top: 1px solid var(--faint); }
-  .person:first-of-type { border-top: 0; padding-top: 0; }
-  .person .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .person .name { font: 500 21px/1.1 var(--serif); color: var(--paper); }
-  .person .place { font-size: 11px; color: var(--dim); }
-  .person .hint { margin: 4px 0 0; font: italic 15px/1.4 var(--serif); color: #b9aea4; }
-  .person .want { margin: 4px 0 0; font: 15px/1.4 var(--serif); color: var(--lamp); }
-  .person .trust { position: relative; height: 1px; background: var(--faint); margin: 10px 0 7px; }
-  .person .trust i { position: absolute; left: 0; top: -1px; height: 3px; background: var(--paper); opacity: .8; }
-  .person .trust u { position: absolute; top: -4px; width: 1px; height: 9px; background: var(--lamp); }
-  .person .status { font: 600 10.5px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
-  .person.ready .status { color: var(--lamp); } .person.shared .status { color: #9fb0ff; } .person.closed .status { color: var(--red); }
-  .person.ready .name { text-shadow: 0 0 18px rgba(231,200,145,.45); }
+  /* Art deco panel: thin gold double rule with corner brackets */
+  .deco { position: relative; background: var(--panel); border: 1px solid var(--hair); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .deco::before { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(214,180,106,.14); pointer-events: none; }
+  .deco::after { content: ""; position: absolute; inset: -1px; pointer-events: none;
+    background:
+      linear-gradient(var(--gold), var(--gold)) top left / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) top left / 1px 18px no-repeat,
+      linear-gradient(var(--gold), var(--gold)) top right / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) top right / 1px 18px no-repeat,
+      linear-gradient(var(--gold), var(--gold)) bottom left / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom left / 1px 18px no-repeat,
+      linear-gradient(var(--gold), var(--gold)) bottom right / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom right / 1px 18px no-repeat; }
+  .label { font: 400 10.5px/1 var(--caps); letter-spacing: .34em; text-transform: uppercase; color: var(--gold); }
+  .label.rule { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+  .label.rule::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--hair), transparent); }
 
-  /* The scene */
-  .scene { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
-  .scene-head { padding: 26px 48px 10px; text-align: center; }
-  .scene-head .place { font: italic 400 15px/1 var(--serif); color: var(--dim); letter-spacing: .06em; }
-  .scene-head .who { margin-top: 6px; font: 500 40px/1 var(--serif); letter-spacing: .14em; text-transform: uppercase; color: var(--paper); }
+  main { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 22px; min-height: 0; padding-bottom: 14px; }
+
+  /* ---------- Left: room keys + guest register ---------- */
+  aside { padding: 22px 20px; overflow-y: auto; }
+  aside section + section { margin-top: 26px; }
+  .keys { display: flex; flex-direction: column; gap: 12px; }
+  .key { position: relative; padding: 12px 14px 12px 40px; border-radius: 4px 14px 14px 4px;
+         background: linear-gradient(135deg, #2a2140, #1c1532); border: 1px solid rgba(45,226,255,.35);
+         box-shadow: 0 0 18px -8px var(--cyan); }
+  .key:nth-child(odd) { transform: rotate(-.6deg); } .key:nth-child(even) { transform: rotate(.5deg); }
+  .key::before { content: ""; position: absolute; left: 14px; top: 16px; width: 12px; height: 12px; border-radius: 50%;
+                 border: 1px solid var(--gold); background: var(--night); }
+  .key .no { font: 400 10px/1 var(--caps); letter-spacing: .3em; color: var(--cyan); text-transform: uppercase; }
+  .key .t { margin-top: 3px; font: 400 15px/1.2 var(--deco); color: var(--text); letter-spacing: .04em; }
+  .key p { margin: 6px 0 0; font: 15px/1.45 var(--serif); color: #d8d0f0; }
+  .empty { font: italic 16px/1.5 var(--serif); color: var(--soft); }
+  .guest { padding: 12px 0 14px; border-bottom: 1px solid rgba(214,180,106,.14); }
+  .guest:last-child { border-bottom: 0; }
+  .guest .row1 { display: flex; justify-content: space-between; align-items: baseline; }
+  .guest .name { font: 400 30px/1 var(--script); color: var(--c); text-shadow: 0 0 10px var(--c); }
+  .guest .room { font: 400 10px/1 var(--caps); letter-spacing: .24em; text-transform: uppercase; color: var(--soft); }
+  .guest .note { margin: 6px 0 0; font: italic 15.5px/1.4 var(--serif); color: #c8bfe2; }
+  .guest .want { margin: 6px 0 0; font: 15.5px/1.4 var(--serif); color: var(--gold); }
+  .guest .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 9px; }
+  .diamonds { display: flex; gap: 5px; }
+  .diamonds i { width: 8px; height: 8px; transform: rotate(45deg); border: 1px solid #4a3f66; }
+  .diamonds i.on { background: var(--c); border-color: var(--c); box-shadow: 0 0 6px var(--c); }
+  .diamonds i.need { border-color: var(--gold); }
+  .status { font: 600 10px/1 var(--caps); letter-spacing: .22em; text-transform: uppercase; color: var(--soft); }
+  .guest.ready .status { color: var(--gold); } .guest.shared .status { color: var(--cyan); } .guest.closed .status { color: #ff6b7a; }
+  .guest.ready .name { animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { text-shadow: 0 0 4px #fff, 0 0 18px var(--c), 0 0 36px var(--c); } }
+
+  /* ---------- Right: the scene ---------- */
+  .scene { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; }
+  .scene-head { padding: 20px 40px 8px; text-align: center; }
+  .scene-head .where { font: 400 12px/1 var(--caps); letter-spacing: .42em; text-transform: uppercase; color: var(--gold); }
+  .scene-head .who { margin-top: 8px; font: 400 54px/1 var(--script); color: #fff; text-shadow: 0 0 6px #fff, 0 0 18px var(--c), 0 0 40px var(--c); }
   .scene-head .who:empty { display: none; }
-  .feed { overflow-y: auto; padding: 12px 48px 24px; display: flex; flex-direction: column; gap: 18px; }
-  .line { max-width: 640px; animation: rise .5s ease-out; }
-  @keyframes rise { from { transform: translateY(5px); filter: blur(1px); } }
-  .line.npc { align-self: flex-start; }
-  .line.npc .who { font: 600 10.5px/1 var(--sans); letter-spacing: .26em; color: var(--red); text-transform: uppercase; }
-  .line.npc p { margin: 6px 0 0; font: 21px/1.45 var(--serif); color: var(--paper); }
-  .line.you { align-self: flex-end; text-align: right; }
-  .line.you p { margin: 0; font: italic 19px/1.45 var(--serif); color: var(--lamp); }
-  .line.you p::before { content: "— "; color: var(--dim); }
-  .line.narration { align-self: center; text-align: center; max-width: 560px; font: italic 17px/1.55 var(--serif); color: var(--dim); }
-  .line.event { align-self: center; text-align: center; max-width: 600px; padding: 14px 0; border-top: 1px solid var(--velvet); border-bottom: 1px solid var(--velvet); }
-  .line.event .caps { color: var(--red); display: block; margin-bottom: 8px; }
-  .line.event p { margin: 0; font: 19px/1.5 var(--serif); color: #e6d2c7; }
-  .line.clue { align-self: stretch; max-width: none; padding: 14px 18px; border-left: 2px solid var(--blue);
-               background: linear-gradient(90deg, rgba(59,91,255,.10), rgba(59,91,255,0) 70%); }
-  .line.clue .caps { color: #9fb0ff; display: block; margin-bottom: 6px; }
-  .line.clue p { margin: 0; font: 19px/1.5 var(--serif); }
-  .line.system { align-self: center; font: 600 10.5px/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #a8957a; text-align: center; }
-  .line.hunt { align-self: center; font: 600 10.5px/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #d0525a; text-align: center; }
-  .line.ending { align-self: center; text-align: center; padding: 26px 0 8px; }
-  .line.ending .t { font: 500 46px/1.05 var(--serif); letter-spacing: .12em; text-transform: uppercase; color: var(--paper); text-shadow: 0 0 30px rgba(179,20,31,.6); }
-  .line.ending p { margin: 12px auto 0; max-width: 520px; font: italic 19px/1.5 var(--serif); color: #cdbfb3; }
-  .howto { align-self: center; max-width: 560px; text-align: center; padding: 8px 0 4px; }
-  .howto .caps { color: var(--lamp); }
-  .howto ol { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; }
-  .howto li { counter-increment: s; font: 17px/1.5 var(--serif); color: #cdbfb3; margin: 10px 0; }
-  .howto li::before { content: counter(s, upper-roman) ".  "; color: var(--red); font-weight: 600; }
-  .typing { align-self: flex-start; font: italic 16px var(--serif); color: var(--dim); display: none; }
+  .divider { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px auto 0; color: var(--gold); font-size: 9px; }
+  .divider::before, .divider::after { content: ""; width: 70px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .divider::after { transform: scaleX(-1); }
+  .feed { overflow-y: auto; padding: 14px 44px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .ln { max-width: 640px; animation: rise .45s ease-out; }
+  @keyframes rise { from { transform: translateY(6px); } }
+  .ln.npc { align-self: flex-start; padding-left: 14px; border-left: 1px solid var(--c); }
+  .ln.npc .who { font: 400 22px/1 var(--script); color: var(--c); text-shadow: 0 0 8px var(--c); }
+  .ln.npc p { margin: 4px 0 0; font: 21px/1.45 var(--serif); color: var(--text); }
+  .ln.you { align-self: flex-end; text-align: right; }
+  .ln.you p { margin: 0; font: italic 19px/1.45 var(--serif); color: var(--gold); }
+  .ln.narration { align-self: center; text-align: center; max-width: 560px; font: italic 17px/1.55 var(--serif); color: var(--soft); }
+  .ln.event { align-self: center; text-align: center; max-width: 600px; padding: 16px 22px; }
+  .ln.event .label { color: var(--pink); }
+  .ln.event p { margin: 10px 0 0; font: 19px/1.5 var(--serif); }
+  .ln.clue { align-self: center; max-width: 560px; text-align: center; padding: 16px 22px; border: 1px solid rgba(45,226,255,.45);
+             background: linear-gradient(180deg, rgba(45,226,255,.10), rgba(45,226,255,.02)); box-shadow: 0 0 30px -12px var(--cyan); }
+  .ln.clue .label { color: var(--cyan); }
+  .ln.clue p { margin: 8px 0 0; font: 19px/1.5 var(--serif); }
+  .ln.system, .ln.hunt { align-self: center; text-align: center; font: 400 10.5px/1.5 var(--caps); letter-spacing: .26em; text-transform: uppercase; }
+  .ln.system { color: #cdb88a; } .ln.hunt { color: #ff7d8a; }
+  .ln.ending { align-self: center; text-align: center; padding: 26px 0 6px; }
+  .ln.ending .t { font: 400 72px/1 var(--script); color: #fff;
+    text-shadow: 0 0 6px #fff, 0 0 18px var(--pink), 0 0 40px var(--pink), 0 0 90px rgba(255,61,154,.6); animation: buzz 9s infinite; }
+  .ln.ending p { margin: 16px auto 0; max-width: 520px; font: italic 20px/1.5 var(--serif); color: #d7cdf0; }
+  .howto { align-self: center; max-width: 560px; text-align: center; padding: 20px 26px; }
+  .howto ol { list-style: none; padding: 0; margin: 12px 0 0; counter-reset: s; }
+  .howto li { counter-increment: s; font: 17px/1.5 var(--serif); color: #d7cdf0; margin: 9px 0; }
+  .howto li::before { content: counter(s, upper-roman) "  "; font-family: var(--deco); color: var(--pink); }
+  .typing { font: italic 16px var(--serif); color: var(--soft); display: none; margin-bottom: 8px; }
   .typing.on { display: block; animation: breathe 1.4s ease-in-out infinite; }
   @keyframes breathe { 50% { opacity: .35; } }
 
-  /* Controls: text, not boxes */
-  .controls { padding: 16px 48px 22px; border-top: 1px solid var(--faint); max-height: 44vh; overflow-y: auto;
-              background: linear-gradient(180deg, rgba(6,4,5,.6), rgba(6,4,5,.95)); }
-  .prompt { margin: 0 0 8px; }
-  .options { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-  .opt { background: none; border: 0; padding: 5px 0; cursor: pointer; text-align: left; color: #d8cfc4;
-         font: 18px/1.35 var(--serif); transition: color .15s, padding .15s; }
-  .opt::before { content: "—  "; color: var(--faint); transition: color .15s; }
-  .opt:hover:not(:disabled) { color: #fff; padding-left: 6px; }
-  .opt:hover:not(:disabled)::before { color: var(--red); }
+  /* ---------- Controls ---------- */
+  .controls { padding: 16px 40px 18px; border-top: 1px solid var(--hair); max-height: 46vh; overflow-y: auto; }
+  .opts { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+  .opt { background: none; border: 0; padding: 5px 0; cursor: pointer; text-align: left; color: #e4dcf8; font: 18.5px/1.35 var(--serif);
+         transition: color .15s, transform .15s; }
+  .opt::before { content: "✦  "; font-size: 11px; vertical-align: 2px; color: var(--gold-dim); transition: color .15s; }
+  .opt:hover:not(:disabled) { color: #fff; transform: translateX(4px); }
+  .opt:hover:not(:disabled)::before { color: var(--pink); text-shadow: 0 0 8px var(--pink); }
   .opt:disabled { opacity: .35; cursor: default; }
-  .opt.deal { color: var(--lamp); } .opt.deal::before { content: "◆  "; color: #7a6542; }
-  .opt.risky { font-style: italic; } .opt.risky::after { content: "  · a gamble"; font: 600 10px var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+  .opt.deal { color: var(--gold); } .opt.deal::before { content: "◆  "; color: var(--gold); }
+  .opt.risky::after { content: "a gamble"; margin-left: 10px; padding: 2px 6px; font: 600 9px/1 var(--caps); letter-spacing: .2em;
+                      text-transform: uppercase; color: var(--pink); border: 1px solid rgba(255,61,154,.5); vertical-align: 3px; }
   .group + .group { margin-top: 14px; }
-  .say { display: flex; gap: 16px; align-items: center; margin-top: 14px; }
-  .say input { flex: 1; background: none; border: 0; border-bottom: 1px solid var(--faint); padding: 8px 2px; color: var(--paper);
-               font: italic 19px var(--serif); outline: none; }
-  .say input:focus { border-bottom-color: var(--red); }
-  .say input::placeholder { color: #5e534f; }
-  .places { display: flex; flex-wrap: wrap; gap: 8px 30px; }
-  .place-btn { background: none; border: 0; padding: 4px 0; cursor: pointer; color: var(--paper); font: 500 22px/1.2 var(--serif); letter-spacing: .04em;
-               border-bottom: 1px solid transparent; }
-  .place-btn:hover:not(:disabled) { border-bottom-color: var(--red); }
-  .hideouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 4px 0 18px; }
-  .hideout { background: rgba(59,91,255,.05); border: 1px solid rgba(59,91,255,.35); padding: 14px 16px; cursor: pointer; text-align: left; color: var(--paper); }
-  .hideout:hover:not(:disabled) { border-color: var(--blue); box-shadow: 0 0 24px -8px var(--blue); }
-  .hideout b { display: block; font: 500 21px/1.2 var(--serif); }
-  .hideout span { display: block; margin-top: 6px; font: italic 15px/1.4 var(--serif); color: var(--dim); }
-  .footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 22px; margin: 6px 0 14px; }
-  .card .name { font: 500 22px/1 var(--serif); }
-  .card .meta { margin: 6px 0 8px; }
+  .group .label { margin-bottom: 6px; display: block; }
+  .say { display: flex; gap: 18px; align-items: center; margin-top: 14px; }
+  .say input { flex: 1; background: rgba(255,255,255,.03); border: 0; border-bottom: 1px solid var(--hair); padding: 9px 4px;
+               color: var(--text); font: italic 19px var(--serif); outline: none; }
+  .say input:focus { border-bottom-color: var(--pink); box-shadow: 0 6px 16px -12px var(--pink); }
+  .say input::placeholder { color: #6f6590; }
+  .places { display: flex; flex-wrap: wrap; gap: 12px 14px; margin-top: 8px; }
+  .place { background: none; cursor: pointer; padding: 12px 20px; border: 1px solid var(--hair); color: var(--text);
+           font: 400 17px/1 var(--deco); letter-spacing: .1em; transition: border-color .15s, box-shadow .15s, color .15s; }
+  .place small { display: block; margin-top: 6px; font: 400 9.5px/1 var(--caps); letter-spacing: .26em; text-transform: uppercase; color: var(--soft); }
+  .place:hover:not(:disabled) { border-color: var(--c, var(--pink)); box-shadow: 0 0 18px -6px var(--c, var(--pink)); color: #fff; }
+  .marquees { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 10px 0 18px; }
+  .marquee { position: relative; cursor: pointer; text-align: center; color: var(--text); padding: 18px 14px; background: #120d27;
+             border: 3px dotted #ffd98a; border-radius: 6px; box-shadow: 0 0 14px -4px rgba(255,217,138,.6), inset 0 0 20px -10px rgba(255,217,138,.6); }
+  .marquee:hover:not(:disabled) { border-color: #fff2c8; box-shadow: 0 0 26px -2px rgba(255,217,138,.9), inset 0 0 26px -8px rgba(255,217,138,.9); }
+  .marquee b { display: block; font: 400 19px/1.15 var(--deco); letter-spacing: .06em; }
+  .marquee span { display: block; margin-top: 8px; font: italic 15px/1.4 var(--serif); color: var(--soft); }
+  .rowx { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin: 4px 0 14px; }
+  .card { padding: 14px 16px; }
+  .card .name { font: 400 30px/1 var(--script); color: var(--c); text-shadow: 0 0 10px var(--c); }
+  .card .meta { margin: 8px 0; display: block; }
   .card ul { margin: 0; padding: 0; list-style: none; }
-  .card li { font: italic 16px/1.45 var(--serif); color: #cdbfb3; margin: 3px 0; }
-  .err { color: #e06a72; font-size: 13px; min-height: 0; }
+  .card li { font: italic 16px/1.45 var(--serif); color: #d7cdf0; margin: 3px 0; }
+  .err { color: #ff7d8a; font-size: 14px; }
+  footer { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 12px; }
+  footer .hint { font: italic 15px var(--serif); color: var(--soft); }
 
-  @media (max-width: 860px) {
+  @media (prefers-reduced-motion: reduce) { .grain, .neon, .ln.ending .t, .guest.ready .name { animation: none; } }
+  @media (max-width: 900px) {
     body { overflow: auto; }
-    .app { height: auto; min-height: 100vh; grid-template-rows: auto auto 40px; }
-    .bar { flex-wrap: wrap; padding: 12px 18px; gap: 10px 16px; }
-    main { grid-template-columns: minmax(0, 1fr); }
-    .scene, .feed, .controls { min-width: 0; }
     body, .app { overflow-x: hidden; }
-    .title { font-size: 17px; letter-spacing: .3em; }
-    .sallow .where { max-width: 160px; }
-    .line.ending .t { font-size: 32px; }
-    .line.npc p { font-size: 19px; }
-    aside { order: 2; border-right: 0; border-top: 1px solid var(--faint); padding: 22px 18px; }
-    .scene { height: 86vh; }
-    .scene-head, .feed, .controls { padding-left: 18px; padding-right: 18px; }
-    .scene-head .who { font-size: 30px; }
-    .hideouts { grid-template-columns: 1fr; }
-    .curtain { display: none; }
+    .app { height: auto; min-height: 100vh; padding: 0 14px; }
+    header { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .hdr-left, .hdr-right { justify-content: center; flex-wrap: wrap; }
+    .hdr-left { order: 2; } .hdr-right { order: 3; }
+    .neon { font-size: 40px; }
+    .sign .sub { letter-spacing: .28em; }
+    main { grid-template-columns: minmax(0, 1fr); }
+    aside { order: 2; }
+    .scene { height: 84vh; }
+    .scene-head, .feed, .controls { padding-left: 16px; padding-right: 16px; }
+    .scene-head .who { font-size: 42px; }
+    .marquees { grid-template-columns: 1fr; }
+    .ln.ending .t { font-size: 50px; }
   }
 </style>
 </head>
 <body>
-<div class="vignette"></div><div class="curtain l"></div><div class="curtain r"></div><div class="grain"></div>
+<div class="sky"></div><div class="stars"></div>
+<svg class="hills" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0f33"/><stop offset="1" stop-color="#07051a"/></linearGradient>
+  </defs>
+  <path d="M0 210 C 140 150, 260 170, 380 140 S 620 90, 760 130 S 980 170, 1120 120 S 1340 110, 1440 150 L1440 320 L0 320 Z" fill="#140b2a" opacity=".85"/>
+  <path d="M0 250 C 180 200, 330 230, 520 200 S 860 170, 1040 215 S 1300 230, 1440 205 L1440 320 L0 320 Z" fill="url(#hg)"/>
+  <g fill="#ffd98a" opacity=".7">
+    <circle cx="200" cy="262" r="1.3"/><circle cx="236" cy="270" r="1"/><circle cx="410" cy="248" r="1.2"/><circle cx="455" cy="258" r="1"/>
+    <circle cx="610" cy="236" r="1.3"/><circle cx="700" cy="250" r="1"/><circle cx="905" cy="242" r="1.2"/><circle cx="980" cy="260" r="1"/>
+    <circle cx="1150" cy="250" r="1.3"/><circle cx="1230" cy="262" r="1"/><circle cx="1330" cy="240" r="1.2"/>
+  </g>
+  <g fill="#ff3d9a" opacity=".6"><circle cx="520" cy="268" r="1.2"/><circle cx="1070" cy="272" r="1.2"/><circle cx="330" cy="280" r="1"/></g>
+  <g fill="#2de2ff" opacity=".6"><circle cx="760" cy="274" r="1.2"/><circle cx="1390" cy="268" r="1"/><circle cx="90" cy="276" r="1"/></g>
+  <g stroke="#05030f" fill="none" stroke-linecap="round">
+    <path d="M118 320 C 122 260, 128 200, 140 150" stroke-width="5"/>
+    <path d="M140 150 q -40 -6 -70 22 M140 150 q -30 -26 -66 -20 M140 150 q 2 -34 -18 -56 M140 150 q 30 -28 66 -18 M140 150 q 44 0 66 30 M140 150 q 18 18 22 50" stroke-width="4"/>
+    <path d="M1310 320 C 1306 250, 1300 180, 1292 120" stroke-width="5"/>
+    <path d="M1292 120 q -42 -4 -72 24 M1292 120 q -30 -26 -66 -20 M1292 120 q 0 -34 20 -56 M1292 120 q 32 -26 68 -16 M1292 120 q 44 2 64 32 M1292 120 q -16 20 -20 50" stroke-width="4"/>
+    <path d="M1372 320 C 1370 280, 1366 240, 1360 205" stroke-width="4"/>
+    <path d="M1360 205 q -30 -4 -50 16 M1360 205 q -20 -20 -46 -14 M1360 205 q 22 -20 48 -12 M1360 205 q 32 2 46 24" stroke-width="3"/>
+  </g>
+</svg>
+<div class="grain"></div>
+
 <div class="app">
-  <header class="bar">
-    <span class="title">After Hours</span>
-    <span class="clock" id="clock">Midnight</span>
-    <div class="sallow" title="Sallow, Veyra's hunter, is looking for Rook too.">
-      <span class="caps">Sallow</span><div class="track" id="track"></div><span class="where" id="sallow-where"></span>
+  <header>
+    <div class="hdr-left">
+      <div class="clock" id="clock">12:00<small>Midnight</small></div>
+      <div class="sallow" title="Sallow, Veyra's hunter, is looking for Rook too.">
+        <div class="bulbs" id="bulbs"></div><small id="sallow-where"></small>
+      </div>
     </div>
-    <div class="spacer"></div>
-    <span class="caps" id="credits"></span>
-    <button class="link" id="restart">New night</button>
+    <div class="sign"><div class="neon">After Hours</div><div class="sub">The Kessler Block · One Night Only</div></div>
+    <div class="hdr-right"><span class="chip" id="credits"></span><button class="link" id="restart">New night</button></div>
   </header>
   <main>
-    <aside>
-      <section><h2 class="caps" id="board-title">The case</h2><div id="board"></div></section>
-      <section><h2 class="caps">People</h2><div id="leads"></div></section>
+    <aside class="deco">
+      <section><div class="label rule" id="board-title">Room keys</div><div class="keys" id="board"></div></section>
+      <section><div class="label rule">Guest register</div><div id="leads"></div></section>
     </aside>
-    <section class="scene">
-      <div class="scene-head"><div class="place" id="place">The Kessler block</div><div class="who" id="who"></div></div>
+    <section class="scene deco">
+      <div class="scene-head"><div class="where" id="place">The Kessler Block</div><div class="who" id="who"></div><div class="divider">◆</div></div>
       <div class="feed" id="feed"></div>
       <div class="controls">
         <div class="typing" id="typing"></div>
@@ -202,16 +267,18 @@
       </div>
     </section>
   </main>
-  <footer class="bar bottom"><span id="hint"></span><span class="caps" id="mode"></span></footer>
+  <footer><span class="hint" id="hint"></span><span class="chip" id="mode"></span></footer>
 </div>
 <script>
-const SLOTS = ["midnight", "1am", "2am", "3am"];
-const SLOT_NAMES = { midnight: "Midnight", "1am": "One a.m.", "2am": "Two a.m.", "3am": "Three a.m." };
+const SLOT_TIME = { midnight: ["12:00", "Midnight"], "1am": ["1:00", "One a.m."], "2am": ["2:00", "Two a.m."], "3am": ["3:00", "Three a.m."] };
 const NAMES = { mara: "Mara", jun: "Jun", nico: "Nico" };
+const COLOR = { mara: "var(--mara)", jun: "var(--jun)", nico: "var(--nico)" };
+const PLACE_NPC = { lantern: "mara", rooftop: "jun", clinic: "nico" };
 const FACT_TEXT = { lied_to: "Knows you lied", promised: "Remembers your promise", kindness: "Remembers you were kind",
   flirted: "Remembers you flirting", asked_openly: "Heard you asking around" };
-const STATUS = { new: () => "Not met", met: () => "Ask what it would take", want: (l) => `Make a deal, or trust ${l.needed}`,
+const STATUS = { new: () => "Not yet met", met: () => "Ask what it would take", want: (l) => `A deal, or trust ${l.needed}`,
   ready: () => "Ready to talk", shared: () => "Told you", closed: () => "Won't talk" };
+const KEY_NO = { C1: "No. 1", C2: "No. 2", C3: "No. 3", E5: "No. 4" };
 const INTRO = `Rook didn't come home. Their last message: "At the Lantern. Tell no one." The checkpoint opens at four.`;
 const $ = (id) => document.getElementById(id);
 let snap = null, busy = false;
@@ -244,77 +311,78 @@ async function api(action, body = {}) {
 
 function line(m) {
   switch (m.kind) {
-    case "npc": return el("div", { class: "line npc" }, el("span", { class: "who" }, NAMES[m.speaker] || ""), el("p", {}, m.text));
-    case "player": return el("div", { class: "line you" }, el("p", {}, m.text));
+    case "npc": return el("div", { class: "ln npc", style: `--c:${COLOR[m.speaker]}` },
+      el("span", { class: "who" }, NAMES[m.speaker] || ""), el("p", {}, m.text));
+    case "player": return el("div", { class: "ln you" }, el("p", {}, m.text));
     case "event": {
       const [title, ...rest] = m.text.split(": ");
-      return el("div", { class: "line event" }, el("span", { class: "caps" }, title), el("p", {}, rest.join(": ")));
+      return el("div", { class: "ln event deco" }, el("span", { class: "label" }, title), el("p", {}, rest.join(": ")));
     }
-    case "clue": return el("div", { class: "line clue" }, el("span", { class: "caps" }, "Evidence"), el("p", {}, m.text.replace(/^Drone footage: /, "")));
+    case "clue": return el("div", { class: "ln clue" }, el("span", { class: "label" }, "New evidence"), el("p", {}, m.text.replace(/^Drone footage: /, "")));
     case "ending": {
       const [title, ...rest] = m.text.split(". ");
-      return el("div", { class: "line ending" }, el("div", { class: "t" }, title), el("p", {}, rest.join(". ")));
+      return el("div", { class: "ln ending" }, el("div", { class: "t" }, title), el("p", {}, rest.join(". ")));
     }
-    case "narration": return /^(MIDNIGHT|1AM|2AM|3AM) · /.test(m.text) ? null : el("div", { class: "line narration" }, m.text);
-    default: return el("div", { class: `line ${m.kind}` }, m.text);
+    case "narration": return /^(MIDNIGHT|1AM|2AM|3AM) · /.test(m.text) ? null : el("div", { class: "ln narration" }, m.text);
+    default: return el("div", { class: `ln ${m.kind}` }, m.text);
   }
-}
-
-function addFeed(items) {
-  for (const m of items) { const n = line(m); if (n) $("feed").append(n); }
 }
 
 function render() {
   if (!snap) return;
-  addFeed(snap.feed || []); snap.feed = [];
-  $("clock").textContent = snap.phase === "dawn" ? "Dawn" : SLOT_NAMES[snap.slot];
+  for (const m of snap.feed || []) { const n = line(m); if (n) $("feed").append(n); }
+  snap.feed = [];
+  const [time, word] = snap.phase === "dawn" ? ["4:00", "Dawn"] : SLOT_TIME[snap.slot];
+  $("clock").replaceChildren(time, el("small", {}, word));
   $("credits").textContent = `${snap.credits} credits`;
-  $("track").replaceChildren(...Array.from({ length: snap.sallow.max }, (_, j) => el("span", { class: j < snap.sallow.heat ? "on" : "" })));
-  $("sallow-where").textContent = snap.sallow.where.replace(/^Sallow is /, "");
+  $("bulbs").replaceChildren(...Array.from({ length: snap.sallow.max }, (_, j) => el("span", { class: j < snap.sallow.heat ? "on" : "" })));
+  $("sallow-where").textContent = "Sallow · " + snap.sallow.where.replace(/^Sallow is /, "").replace(/\.$/, "");
   $("mode").textContent = snap.mode === "agent" ? "Agent mode" : "Scripted mode";
 
-  $("place").textContent = snap.npc ? snap.location_name : snap.phase === "finale" ? snap.location_name
-    : snap.phase === "dawn" ? "Four a.m." : "The Kessler block";
+  document.querySelector(".scene").style.setProperty("--c", snap.npc ? COLOR[snap.npc] : "var(--pink)");
+  $("place").textContent = snap.npc || snap.phase === "finale" ? snap.location_name : snap.phase === "dawn" ? "Four a.m." : "The Kessler Block";
   $("who").textContent = snap.npc ? snap.npc_name : snap.phase === "finale" ? "Rook" : "";
 
-  $("board-title").textContent = `The case · ${snap.case_board.length} ${snap.case_board.length === 1 ? "piece" : "pieces"}`;
+  $("board-title").textContent = `Room keys · ${snap.case_board.length}`;
   $("board").replaceChildren(...(snap.case_board.length ? snap.case_board.map((c) =>
-    el("div", { class: "evidence" }, el("b", {}, c.title), el("p", {}, c.text)))
-    : [el("div", { class: "empty" }, "Nothing yet. Each of them knows one piece.")]));
+    el("div", { class: "key" }, el("div", { class: "no" }, KEY_NO[c.id] || "No. ?"), el("div", { class: "t" }, c.title), el("p", {}, c.text)))
+    : [el("div", { class: "empty" }, "No keys yet. Each guest holds one piece of the night.")]));
 
-  $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `person ${l.status}` },
-    el("div", { class: "row1" }, el("span", { class: "name" }, l.name), el("span", { class: "place" }, l.where)),
-    l.want ? el("p", { class: "want" }, l.want) : el("p", { class: "hint" }, l.hint),
-    el("div", { class: "trust", title: `Trust ${l.trust}. Needs ${l.needed} to talk them round without a deal.` },
-      el("i", { style: `width:${Math.max(0, l.trust) * 20}%` }), el("u", { style: `left:${Math.min(l.needed, 5) * 20}%` })),
-    el("span", { class: "status" }, STATUS[l.status](l)))));
+  $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `guest ${l.status}`, style: `--c:${COLOR[l.npc]}` },
+    el("div", { class: "row1" }, el("span", { class: "name" }, l.name), el("span", { class: "room" }, l.where)),
+    l.want ? el("p", { class: "want" }, l.want) : el("p", { class: "note" }, l.hint),
+    el("div", { class: "row2" },
+      el("div", { class: "diamonds", title: `Trust ${l.trust}. Needs ${l.needed} to talk them round without a deal.` },
+        ...Array.from({ length: 5 }, (_, j) => el("i", { class: j < l.trust ? "on" : j === Math.min(l.needed, 5) - 1 ? "need" : "" }))),
+      el("span", { class: "status" }, STATUS[l.status](l))))));
 
   const panel = $("panel"); panel.replaceChildren();
   let hint = "";
   if (snap.phase === "choose_location") {
     if (snap.hideouts.length) {
-      panel.append(el("p", { class: "caps prompt" }, "Where is Rook? One guess."),
-        el("div", { class: "hideouts" }, ...snap.hideouts.map((h) => el("button", { class: "hideout",
+      panel.append(el("span", { class: "label" }, "Where is Rook? One guess."),
+        el("div", { class: "marquees" }, ...snap.hideouts.map((h) => el("button", { class: "marquee",
           onclick: () => { if (confirm(`Search the ${h.name}? You only get one guess.`)) api("visit", { location: h.id }); } },
           el("b", {}, h.name), el("span", {}, h.about)))),
-        el("p", { class: "caps prompt" }, "Or spend the last hour with someone"));
-      hint = "Read the case. What does the evidence point to?";
+        el("span", { class: "label" }, "Or spend the last hour with someone"));
+      hint = "Read your room keys. What does the evidence point to?";
     } else {
-      panel.append(el("p", { class: "caps prompt" }, "Where do you spend the hour?"));
-      hint = "Each place, one person. Each person, one piece of the night.";
+      panel.append(el("span", { class: "label" }, "Where do you spend the hour?"));
+      hint = "Each place, one guest. Each guest, one piece of the night.";
     }
-    panel.append(el("div", { class: "places" }, ...snap.locations.map((l) =>
-      el("button", { class: "place-btn", onclick: () => api("visit", { location: l.id }) }, l.name))));
+    panel.append(el("div", { class: "places" }, ...snap.locations.map((l) => el("button", {
+      class: "place", style: `--c:${COLOR[PLACE_NPC[l.id]]}`, onclick: () => api("visit", { location: l.id }) },
+      l.name, el("small", {}, NAMES[PLACE_NPC[l.id]])))));
   } else if (snap.phase === "event" && snap.event) {
-    panel.append(el("div", { class: "options" }, ...Object.entries(snap.event.choices).map(([k, label]) =>
+    panel.append(el("div", { class: "opts" }, ...Object.entries(snap.event.choices).map(([k, label]) =>
       el("button", { class: "opt", onclick: () => api("event", { choice: k }) }, label))));
     hint = "Something's happening. Choose.";
   } else if (snap.phase === "talk") {
-    panel.append(el("div", { class: "group" }, el("div", { class: "options" }, ...snap.options.map((o, j) =>
+    panel.append(el("div", { class: "group" }, el("div", { class: "opts" }, ...snap.options.map((o, j) =>
       el("button", { class: "opt", onclick: () => snap.mode === "agent" ? api("say", { text: o }) : api("option", { index: j }) }, o)))));
     if (snap.deals.length) {
-      panel.append(el("div", { class: "group" }, el("p", { class: "caps prompt" }, `Offer ${snap.npc_name}`),
-        el("div", { class: "options" }, ...snap.deals.map((d) =>
+      panel.append(el("div", { class: "group" }, el("span", { class: "label" }, `Offer ${snap.npc_name}`),
+        el("div", { class: "opts" }, ...snap.deals.map((d) =>
           el("button", { class: `opt deal ${d.risky ? "risky" : ""}`, onclick: () => api("deal", { deal: d.id }) },
             d.label.replace(/ \(risky\)$/, ""))))));
     }
@@ -326,11 +394,11 @@ function render() {
       panel.append(el("div", { class: "say" }, input, el("button", { class: "link", onclick: send }, "Say"), leave));
       setTimeout(() => input.focus(), 0);
     } else {
-      panel.append(el("div", { class: "footer-row" }, el("span"), leave));
+      panel.append(el("div", { class: "rowx" }, el("span"), leave));
     }
     hint = `${snap.exchanges_left} ${snap.exchanges_left === 1 ? "exchange" : "exchanges"} left this hour`;
   } else if (snap.phase === "finale") {
-    panel.append(el("div", { class: "options" }, ...Object.entries(snap.finale_choices).map(([k, label]) =>
+    panel.append(el("div", { class: "opts" }, ...Object.entries(snap.finale_choices).map(([k, label]) =>
       el("button", { class: "opt", onclick: () => api("finale", { choice: k }) }, label))));
     hint = "The chip. Decide.";
   } else if (snap.phase === "dawn") {
@@ -342,9 +410,9 @@ function render() {
       c.facts.forEach((f) => items.push(FACT_TEXT[f] || f));
       c.remembers.forEach((r) => items.push(r));
       if (!items.length) items.push("Barely remembers you.");
-      return el("div", { class: "card" }, el("div", { class: "name" }, c.npc),
-        el("div", { class: "caps meta" }, `Trust ${c.trust} · Warmth ${c.warmth}`), el("ul", {}, ...items.map((t) => el("li", {}, t))));
-    })), el("button", { class: "link", onclick: newNight }, "Play another night"));
+      return el("div", { class: "card deco", style: `--c:${COLOR[c.npc.toLowerCase()]}` }, el("div", { class: "name" }, c.npc),
+        el("span", { class: "label meta" }, `Trust ${c.trust} · Warmth ${c.warmth}`), el("ul", {}, ...items.map((t) => el("li", {}, t))));
+    })), el("button", { class: "link", onclick: newNight }, "Check in for another night"));
     hint = snap.ending ? snap.ending.title : "";
   }
   $("hint").textContent = hint;
@@ -353,20 +421,20 @@ function render() {
 
 function howTo() {
   const typing = snap && snap.mode === "agent";
-  return el("div", { class: "howto" }, el("span", { class: "caps" }, "How the night works"), el("ol", {},
+  return el("div", { class: "howto deco" }, el("span", { class: "label" }, "House rules"), el("ol", {},
     el("li", {}, "Find Rook before four. Each hour, go somewhere and talk to whoever is there."),
-    el("li", {}, "Everyone wants something. Ask what it would take. Some deals are gambles; some betray someone else."),
+    el("li", {}, "Every guest wants something. Ask what it would take. Some deals are gambles; some betray someone else."),
     el("li", {}, "Sallow is hunting Rook too. Shouting, or getting caught in a lie, brings him closer."),
     el("li", {}, "At three, you decide where Rook is hiding. One guess."),
     el("li", {}, typing ? "Say anything. They remember." : "Choose what to say. They remember.")));
 }
 
 function newNight() {
-  $("feed").replaceChildren(el("div", { class: "line narration" }, INTRO), howTo());
+  $("feed").replaceChildren(el("div", { class: "ln narration" }, INTRO), howTo());
   api("new", { mode: snap ? snap.mode : undefined });
 }
 $("restart").addEventListener("click", () => { if (confirm("Start a new night? This one will be lost.")) newNight(); });
-$("feed").append(el("div", { class: "line narration" }, INTRO));
+$("feed").append(el("div", { class: "ln narration" }, INTRO));
 api("state").then(() => { if (snap && snap.slot === "midnight" && snap.phase === "choose_location" && !snap.case_board.length) {
   $("feed").append(howTo()); } });
 </script>
