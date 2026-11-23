@@ -54,10 +54,11 @@
     animation: buzz 7s infinite; }
   @keyframes buzz { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 19%, 21% { opacity: .35; } 63% { opacity: .6; } }
   .sign .sub { margin-top: 6px; font: 400 11px/1 var(--caps); letter-spacing: .55em; color: var(--gold); text-transform: uppercase; }
-  .hdr-left, .hdr-right { display: flex; align-items: center; gap: 18px; }
+  .hdr-left, .hdr-right { display: flex; align-items: center; gap: 14px; min-width: 0; }
   .hdr-right { justify-content: flex-end; }
   .clock { font: 400 22px/1 var(--deco); color: var(--text); letter-spacing: .08em; }
-  .clock small { display: block; margin-top: 5px; font: 400 10px/1 var(--caps); letter-spacing: .32em; color: var(--soft); text-transform: uppercase; }
+  .clock { white-space: nowrap; }
+  .clock small { white-space: nowrap; display: block; margin-top: 5px; font: 400 10px/1 var(--caps); letter-spacing: .32em; color: var(--soft); text-transform: uppercase; }
   .sallow { display: flex; flex-direction: column; gap: 5px; }
   .bulbs { display: flex; gap: 6px; }
   .bulbs span { width: 8px; height: 8px; border-radius: 50%; background: #2a1830; box-shadow: inset 0 0 0 1px #4a2a48; }
@@ -195,6 +196,91 @@
   footer { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 12px; }
   footer .hint { font: italic 15px var(--serif); color: var(--soft); }
 
+  /* ---------- Phone ---------- */
+  .icon-btn { white-space: nowrap; background: none; border: 1px solid var(--hair); color: var(--text); cursor: pointer; padding: 7px 12px; position: relative;
+              font: 400 10.5px/1 var(--caps); letter-spacing: .24em; text-transform: uppercase; }
+  .icon-btn:hover { border-color: var(--pink); box-shadow: 0 0 14px -6px var(--pink); }
+  .icon-btn .dot { position: absolute; top: -4px; right: -4px; width: 9px; height: 9px; border-radius: 50%; background: var(--pink);
+                   box-shadow: 0 0 8px var(--pink); display: none; }
+  .icon-btn.unread .dot { display: block; animation: pulse-dot 1.2s ease-in-out infinite; }
+  @keyframes pulse-dot { 50% { transform: scale(1.4); } }
+  .overlay { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center;
+             background: rgba(5, 3, 15, .72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .overlay.open { display: flex; animation: fadein .35s ease-out; }
+  @keyframes fadein { from { opacity: 0; } }
+  .phone { width: 320px; height: 620px; max-height: 92vh; border-radius: 44px; padding: 14px; background: #050409;
+           box-shadow: 0 0 0 2px #2a2440, 0 0 0 9px #0f0c1c, 0 30px 80px -10px rgba(255,61,154,.35), 0 0 120px -30px var(--cyan);
+           display: flex; flex-direction: column; animation: rise-phone .5s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes rise-phone { from { transform: translateY(40px) scale(.96); opacity: 0; } }
+  .screen { flex: 1; border-radius: 32px; overflow: hidden; position: relative; display: flex; flex-direction: column;
+            background: radial-gradient(ellipse 120% 70% at 50% 110%, #ff3d9a44, transparent 60%),
+                        radial-gradient(ellipse 90% 60% at 10% -10%, #2de2ff33, transparent 60%), #0d0a22; }
+  .notch { width: 96px; height: 24px; border-radius: 14px; background: #000; margin: 8px auto 0; flex: none; }
+  .lock { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 34px 16px 20px; }
+  .lock .big { font: 300 76px/1 var(--caps); letter-spacing: -.02em; color: #fff; }
+  .lock .day { margin-top: 8px; font: 400 11px/1 var(--caps); letter-spacing: .3em; text-transform: uppercase; color: var(--soft); }
+  .notif { margin-top: auto; width: 100%; text-align: left; cursor: pointer; padding: 12px 14px; border-radius: 18px; border: 0;
+           background: rgba(255,255,255,.12); color: #fff; backdrop-filter: blur(10px); animation: notif-in .6s .5s both cubic-bezier(.2,.9,.3,1.2); }
+  .notif:hover { background: rgba(255,255,255,.18); }
+  @keyframes notif-in { from { transform: translateY(-30px); opacity: 0; } }
+  .notif .from { display: flex; justify-content: space-between; font: 600 11px/1 var(--caps); letter-spacing: .1em; text-transform: uppercase; color: #ffd0e6; }
+  .notif .msg { margin-top: 6px; font: 15px/1.35 var(--caps); }
+  .tap { margin-top: 14px; font: 400 10px/1 var(--caps); letter-spacing: .3em; text-transform: uppercase; color: var(--soft); animation: breathe 1.6s infinite; }
+  .thread { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .thread-head { padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .thread-head b { display: block; font: 400 26px/1 var(--script); color: var(--pink); text-shadow: 0 0 8px var(--pink); }
+  .thread-head small { font: 400 10px/1 var(--caps); letter-spacing: .24em; color: var(--soft); text-transform: uppercase; }
+  .msgs { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .stamp { align-self: center; font: 400 10px/1 var(--caps); letter-spacing: .16em; color: var(--soft); margin: 6px 0 2px; }
+  .bub { max-width: 82%; padding: 8px 12px; border-radius: 18px; font: 14.5px/1.35 var(--caps); }
+  .bub.them { align-self: flex-start; background: #2a2245; color: #f2ecff; border-bottom-left-radius: 6px; }
+  .bub.them .who { display: block; font: 600 9.5px/1 var(--caps); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; color: var(--c, #ffd0e6); }
+  .bub.me { align-self: flex-end; background: linear-gradient(135deg, #ff3d9a, #c13bff); color: #fff; border-bottom-right-radius: 6px; }
+  .bub.fail { opacity: .6; } .failed { align-self: flex-end; font: 600 9.5px/1 var(--caps); color: #ff7d8a; letter-spacing: .12em; text-transform: uppercase; }
+  .bub.new { animation: rise .4s ease-out; box-shadow: 0 0 18px -4px var(--c, var(--pink)); }
+  .phone-go { margin: 10px 14px 14px; padding: 13px; border-radius: 22px; border: 0; cursor: pointer; color: #fff;
+              background: linear-gradient(135deg, #ff3d9a, #8f3bff); font: 600 11px/1 var(--caps); letter-spacing: .3em; text-transform: uppercase;
+              box-shadow: 0 0 24px -6px var(--pink); }
+  .toast { position: fixed; top: 16px; left: 50%; transform: translate(-50%, -140%); z-index: 15; width: min(340px, 90vw); cursor: pointer;
+           padding: 12px 14px; border-radius: 18px; background: rgba(30, 24, 54, .92); border: 1px solid rgba(255,255,255,.1);
+           backdrop-filter: blur(12px); box-shadow: 0 12px 40px -10px #000, 0 0 30px -12px var(--pink); transition: transform .5s cubic-bezier(.2,.9,.3,1.2); }
+  .toast.show { transform: translate(-50%, 0); }
+  .toast .from { font: 600 10.5px/1 var(--caps); letter-spacing: .12em; text-transform: uppercase; color: #ffd0e6; }
+  .toast .msg { margin-top: 5px; font: 14.5px/1.35 var(--caps); color: #fff; }
+
+  /* ---------- Title card between scenes ---------- */
+  .card-over { position: fixed; inset: 0; z-index: 18; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+               background: radial-gradient(ellipse at center, #120b2c 0%, #05030f 75%); cursor: pointer; }
+  .card-over.open { display: flex; animation: card 2.2s ease-in-out both; }
+  @keyframes card { 0% { opacity: 0; } 18%, 78% { opacity: 1; } 100% { opacity: 0; } }
+  .card-over .time { font: 400 13px/1 var(--caps); letter-spacing: .5em; text-transform: uppercase; color: var(--gold); }
+  .card-over .loc { font: 400 40px/1.1 var(--deco); letter-spacing: .12em; color: var(--text); text-align: center; }
+  .card-over .who { font: 400 64px/1 var(--script); color: #fff; text-shadow: 0 0 6px #fff, 0 0 20px var(--c), 0 0 50px var(--c); }
+  .card-over .rule { width: 160px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+  /* ---------- Sallow closing in ---------- */
+  .threat { position: fixed; inset: 0; z-index: 7; pointer-events: none; opacity: 0;
+            box-shadow: inset 0 0 160px 30px rgba(255, 40, 60, .55); }
+  .threat.pulse { animation: threat 1.6s ease-out; }
+  @keyframes threat { 0% { opacity: 0; } 15% { opacity: 1; } 35% { opacity: .3; } 50% { opacity: .8; } 100% { opacity: 0; } }
+  .bulbs.flash span.on:last-of-type { animation: pulse-dot .4s ease-in-out 4; }
+
+  /* ---------- New room key ---------- */
+  .key.new { animation: key-drop .9s cubic-bezier(.2,.9,.3,1.3); box-shadow: 0 0 34px -4px var(--cyan); }
+  @keyframes key-drop { 0% { transform: translateY(-40px) rotate(-8deg); opacity: 0; } 60% { transform: translateY(4px) rotate(2deg); opacity: 1; } }
+
+  /* ---------- Typewriter, keys, parallax ---------- */
+  .ln.npc p.typing-now::after { content: "▍"; color: var(--c); animation: breathe .8s infinite; margin-left: 2px; }
+  .k { display: inline-block; min-width: 18px; margin-right: 8px; padding: 2px 4px; border: 1px solid #3c3360; border-radius: 3px;
+       font: 600 9.5px/1 var(--caps); color: var(--soft); text-align: center; vertical-align: 3px; }
+  .opt .k { margin-left: -2px; }
+  .opt::before { content: none !important; }
+  .opt.deal .k { border-color: var(--gold-dim); color: var(--gold); }
+  .hills, .stars { transition: transform .6s ease-out; }
+  .hills { transform: translateX(calc(var(--mx, 0) * -14px)); }
+  .stars { transform: translate(calc(var(--mx, 0) * -6px), calc(var(--my, 0) * -4px)); }
+
+  @media (prefers-reduced-motion: reduce) { .threat.pulse, .card-over.open, .key.new, .phone, .notif { animation: none !important; } }
   @media (prefers-reduced-motion: reduce) { .grain, .neon, .ln.ending .t, .guest.ready .name { animation: none; } }
   @media (max-width: 900px) {
     body { overflow: auto; }
@@ -214,6 +300,7 @@
     .ln.ending .t { font-size: 50px; }
   }
 </style>
+<script src="/sound.js"></script>
 </head>
 <body>
 <div class="sky"></div><div class="stars"></div>
@@ -240,6 +327,10 @@
   </g>
 </svg>
 <div class="grain"></div>
+<div class="threat" id="threat"></div>
+<div class="overlay" id="phone"><div class="phone"><div class="screen" id="screen"></div></div></div>
+<div class="toast" id="toast"><div class="from" id="toast-from"></div><div class="msg" id="toast-msg"></div></div>
+<div class="card-over" id="card"></div>
 
 <div class="app">
   <header>
@@ -250,7 +341,10 @@
       </div>
     </div>
     <div class="sign"><div class="neon">After Hours</div><div class="sub">The Kessler Block · One Night Only</div></div>
-    <div class="hdr-right"><span class="chip" id="credits"></span><button class="link" id="restart">New night</button></div>
+    <div class="hdr-right"><span class="chip" id="credits"></span>
+      <button class="icon-btn" id="phone-btn" title="Rook's phone">Phone<span class="dot"></span></button>
+      <button class="icon-btn" id="sound-btn" title="Sound on or off">Sound</button>
+      <button class="link" id="restart">New night</button></div>
   </header>
   <main>
     <aside class="deco">
@@ -304,7 +398,7 @@ async function api(action, body = {}) {
       action === "state" ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Something went wrong.");
-    snap = data; render();
+    const prev = snap; snap = data; render(); effects(prev, data, action);
   } catch (e) { $("err").textContent = e.message; render(); }
   finally { busy = false; $("typing").classList.remove("on"); }
 }
@@ -330,7 +424,11 @@ function line(m) {
 
 function render() {
   if (!snap) return;
-  for (const m of snap.feed || []) { const n = line(m); if (n) $("feed").append(n); }
+  for (const m of snap.feed || []) {
+    const n = line(m); if (!n) continue;
+    $("feed").append(n);
+    if (!replaying && m.kind === "npc") typeInto(n.querySelector("p"), m.text);
+  }
   snap.feed = [];
   const [time, word] = snap.phase === "dawn" ? ["4:00", "Dawn"] : SLOT_TIME[snap.slot];
   $("clock").replaceChildren(time, el("small", {}, word));
@@ -345,7 +443,7 @@ function render() {
 
   $("board-title").textContent = `Room keys · ${snap.case_board.length}`;
   $("board").replaceChildren(...(snap.case_board.length ? snap.case_board.map((c) =>
-    el("div", { class: "key" }, el("div", { class: "no" }, KEY_NO[c.id] || "No. ?"), el("div", { class: "t" }, c.title), el("p", {}, c.text)))
+    el("div", { class: `key ${c.id === newKey ? "new" : ""}` }, el("div", { class: "no" }, KEY_NO[c.id] || "No. ?"), el("div", { class: "t" }, c.title), el("p", {}, c.text)))
     : [el("div", { class: "empty" }, "No keys yet. Each guest holds one piece of the night.")]));
 
   $("leads").replaceChildren(...snap.leads.map((l) => el("div", { class: `guest ${l.status}`, style: `--c:${COLOR[l.npc]}` },
@@ -416,7 +514,157 @@ function render() {
     hint = snap.ending ? snap.ending.title : "";
   }
   $("hint").textContent = hint;
+  [...panel.querySelectorAll(".opt, .place, .marquee")].slice(0, 9).forEach((b, i) => b.prepend(el("span", { class: "k" }, String(i + 1))));
+  if (typeof Sound !== "undefined") Sound.setPlace(snap.phase === "dawn" ? "dawn" : snap.phase === "finale" ? "lift" : snap.npc ? snap.location : "street");
   requestAnimationFrame(() => { $("feed").scrollTop = $("feed").scrollHeight; });
+}
+
+// ---------- Effects: what changed since the last screen ----------
+let replaying = true, newKey = null;
+function effects(prev, now, action) {
+  if (!prev || action === "state" || action === "new") return;
+  if (now.sallow.heat > prev.sallow.heat) {
+    const t = $("threat"); t.classList.remove("pulse"); void t.offsetWidth; t.classList.add("pulse");
+    $("bulbs").classList.add("flash"); setTimeout(() => $("bulbs").classList.remove("flash"), 1700);
+    Sound.play("hunt");
+  }
+  if (now.case_board.length > prev.case_board.length) {
+    newKey = now.case_board[now.case_board.length - 1].id; render(); newKey = null; Sound.play("clue");
+  }
+  if (action === "deal") Sound.play("deal");
+  const enteredScene = (now.npc && now.npc !== prev.npc) || (now.phase === "finale" && prev.phase !== "finale");
+  if (enteredScene) titleCard(now);
+  if (now.phase === "dawn" && prev.phase !== "dawn") setTimeout(() => Sound.play("ending"), 400);
+  checkTexts(now, false);
+}
+
+// ---------- Typewriter ----------
+let typingJobs = [];
+function typeInto(p, text) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return;
+  p.textContent = ""; p.classList.add("typing-now");
+  let i = 0;
+  const job = { done: false, finish() { if (!job.done) { job.done = true; clearInterval(id); p.textContent = text; p.classList.remove("typing-now"); } } };
+  const id = setInterval(() => {
+    i += 2; p.textContent = text.slice(0, i);
+    $("feed").scrollTop = $("feed").scrollHeight;
+    if (i >= text.length) job.finish();
+  }, 22);
+  typingJobs.push(job);
+}
+$("feed").addEventListener("click", () => { typingJobs.forEach((j) => j.finish()); typingJobs = []; });
+
+// ---------- Title card between scenes ----------
+function titleCard(now) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const card = $("card");
+  const [time, word] = SLOT_TIME[now.slot] || ["", ""];
+  const who = now.npc ? now.npc_name : "Rook";
+  card.style.setProperty("--c", now.npc ? COLOR[now.npc] : "var(--pink)");
+  card.replaceChildren(el("div", { class: "time" }, `${time} · ${word}`), el("div", { class: "rule" }),
+    el("div", { class: "loc" }, now.location_name), el("div", { class: "who" }, who));
+  card.classList.remove("open"); void card.offsetWidth; card.classList.add("open");
+  Sound.play("step");
+  clearTimeout(titleCard.t); titleCard.t = setTimeout(() => card.classList.remove("open"), 2200);
+}
+$("card").addEventListener("click", () => $("card").classList.remove("open"));
+
+// ---------- Rook's phone ----------
+const THREAD = [
+  { stamp: "Yesterday 9:04 PM" },
+  { from: "Rook", text: "got a job tonight. easy money. don't wait up" },
+  { stamp: "11:12 PM" },
+  { from: "Rook", text: "theres a guy in a grey jacket watching the door" },
+  { from: "Rook", text: "probably nothing" },
+  { stamp: "11:31 PM" },
+  { from: "Rook", text: "At the Lantern. Tell no one." },
+  { stamp: "11:58 PM" },
+  { me: true, text: "where are you??", failed: true },
+];
+const LATER = [   // texts that arrive during the night
+  { id: "mara", from: "Mara", c: "var(--mara)", when: (s) => lead(s, "mara") === "shared" && s.slot !== "midnight",
+    text: "whatever you find out there, be careful kid" },
+  { id: "jun", from: "Jun", c: "var(--jun)", when: (s) => lead(s, "jun") === "shared", text: "Remember our arrangement." },
+  { id: "tail", from: "Unknown number", c: "#ff7d8a", when: (s) => s.sallow.heat >= 3, text: "Stop looking for your friend." },
+  { id: "rook", from: "Rook", c: "var(--pink)", when: (s) => s.slot === "3am" && s.phase !== "dawn",
+    text: "its pitch black in here. no power, no signal. hurry" },
+  { id: "close", from: "Unknown number", c: "#ff7d8a", when: (s) => s.sallow.heat >= 5, text: "I'm closer than you are." },
+];
+let received = [], unread = false;
+const lead = (s, npc) => (s.leads.find((l) => l.npc === npc) || {}).status;
+
+function checkTexts(now, silent) {
+  for (const t of LATER) {
+    if (received.some((r) => r.id === t.id) || !t.when(now)) continue;
+    received.push({ ...t, fresh: !silent });
+    if (!silent) { unread = true; toast(t.from, t.text); }
+  }
+  $("phone-btn").classList.toggle("unread", unread);
+}
+
+function toast(from, text) {
+  $("toast-from").textContent = from; $("toast-msg").textContent = text;
+  const t = $("toast"); t.classList.add("show"); Sound.play("buzz");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 4200);
+}
+$("toast").addEventListener("click", () => { $("toast").classList.remove("show"); openThread(); });
+
+function showLock() {
+  const [time] = SLOT_TIME.midnight;
+  $("screen").replaceChildren(el("div", { class: "notch" }), el("div", { class: "lock" },
+    el("div", { class: "big" }, time), el("div", { class: "day" }, "Kessler Block · Rain"),
+    el("button", { class: "notif", onclick: openThread },
+      el("div", { class: "from" }, el("span", {}, "Rook"), el("span", {}, "11:31 PM")),
+      el("div", { class: "msg" }, "At the Lantern. Tell no one.")),
+    el("div", { class: "tap" }, "Tap the message")));
+  $("phone").classList.add("open");
+}
+
+function openThread() {
+  Sound.start(); updateSoundBtn();
+  const msgs = el("div", { class: "msgs" });
+  for (const m of THREAD) {
+    if (m.stamp) msgs.append(el("div", { class: "stamp" }, m.stamp));
+    else if (m.me) { msgs.append(el("div", { class: `bub me ${m.failed ? "fail" : ""}` }, m.text)); if (m.failed) msgs.append(el("div", { class: "failed" }, "Not delivered")); }
+    else msgs.append(el("div", { class: "bub them" }, m.text));
+  }
+  if (received.length) msgs.append(el("div", { class: "stamp" }, "Tonight"));
+  for (const r of received) {
+    msgs.append(el("div", { class: `bub them ${r.fresh ? "new" : ""}`, style: `--c:${r.c}` }, el("span", { class: "who" }, r.from), r.text));
+    r.fresh = false;
+  }
+  const started = snap && (snap.phase !== "choose_location" || snap.slot !== "midnight" || snap.case_board.length);
+  $("screen").replaceChildren(el("div", { class: "notch" }), el("div", { class: "thread" },
+    el("div", { class: "thread-head" }, el("b", {}, "Rook"), el("small", {}, "Last seen 11:31 PM")), msgs),
+    el("button", { class: "phone-go", onclick: closePhone }, started ? "Back to the night" : "Go find Rook"));
+  $("phone").classList.add("open");
+  unread = false; $("phone-btn").classList.remove("unread");
+  requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+}
+function closePhone() { $("phone").classList.remove("open"); Sound.start(); updateSoundBtn(); }
+$("phone-btn").addEventListener("click", openThread);
+$("phone").addEventListener("click", (e) => { if (e.target.id === "phone" && $("screen").querySelector(".thread")) closePhone(); });
+
+// ---------- Sound button ----------
+function updateSoundBtn() { $("sound-btn").textContent = !Sound.started ? "Sound" : Sound.muted ? "Sound off" : "Sound on"; }
+$("sound-btn").addEventListener("click", () => { if (!Sound.started) Sound.start(); else Sound.setMuted(!Sound.muted); updateSoundBtn(); });
+
+// ---------- Keyboard: 1-9 picks, Esc closes the phone ----------
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { closePhone(); $("card").classList.remove("open"); return; }
+  if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+  if ($("phone").classList.contains("open")) return;
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= 9) { const b = $("panel").querySelectorAll(".opt, .place, .marquee")[n - 1]; if (b && !b.disabled) b.click(); }
+});
+
+// ---------- Parallax ----------
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  document.addEventListener("mousemove", (e) => {
+    document.body.style.setProperty("--mx", (e.clientX / innerWidth - 0.5).toFixed(3));
+    document.body.style.setProperty("--my", (e.clientY / innerHeight - 0.5).toFixed(3));
+  });
 }
 
 function howTo() {
@@ -430,13 +678,20 @@ function howTo() {
 }
 
 function newNight() {
+  received = []; unread = false; $("phone-btn").classList.remove("unread");
   $("feed").replaceChildren(el("div", { class: "ln narration" }, INTRO), howTo());
-  api("new", { mode: snap ? snap.mode : undefined });
+  api("new", { mode: snap ? snap.mode : undefined }).then(showLock);
 }
 $("restart").addEventListener("click", () => { if (confirm("Start a new night? This one will be lost.")) newNight(); });
 $("feed").append(el("div", { class: "ln narration" }, INTRO));
-api("state").then(() => { if (snap && snap.slot === "midnight" && snap.phase === "choose_location" && !snap.case_board.length) {
-  $("feed").append(howTo()); } });
+updateSoundBtn();
+api("state").then(() => {
+  replaying = false;
+  if (!snap) return;
+  const fresh = snap.slot === "midnight" && snap.phase === "choose_location" && !snap.case_board.length;
+  if (fresh) { $("feed").append(howTo()); showLock(); }
+  else checkTexts(snap, true);   // rebuild tonight's texts quietly after a reload
+});
 </script>
 </body>
 </html>

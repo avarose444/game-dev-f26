@@ -15,6 +15,7 @@ from .agent import LIVE_PROVIDERS
 from .night import Night
 
 STATIC = Path(__file__).parent / "static"
+STATIC_FILES = {"sound.js": "text/javascript; charset=utf-8"}  # explicit list: nothing else is served
 
 
 class Game:
@@ -59,6 +60,9 @@ def make_handler(game: Game):
         def do_GET(self):
             if self.path in ("/", "/index.html"):
                 self._send(200, (STATIC / "index.html").read_bytes(), "text/html; charset=utf-8")
+            elif self.path.lstrip("/") in STATIC_FILES:
+                name = self.path.lstrip("/")
+                self._send(200, (STATIC / name).read_bytes(), STATIC_FILES[name])
             elif self.path == "/api/state":
                 self._send(200, json.dumps(game.handle("state", {})).encode(), "application/json")
             else:
