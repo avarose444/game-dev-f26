@@ -108,6 +108,28 @@ def situation_for(state: GameState, npc_id: str) -> list[str]:
     return notes
 
 
+REQUIRED_ENV = {
+    "vertex": ("GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION", "COURSE_MODEL"),
+    "anthropic": ("ANTHROPIC_API_KEY", "COURSE_MODEL"),
+    "openai": ("OPENAI_API_KEY", "COURSE_MODEL"),
+}
+
+
+def missing_settings(provider: str) -> list[str]:
+    """Environment variables a live provider needs that are not set (names only, never values)."""
+    return [k for k in REQUIRED_ENV.get(provider, ()) if not os.environ.get(k, "").strip()]
+
+
+def require_settings(provider: str) -> None:
+    """Stop before a live run instead of silently falling back to scripted lines on every turn."""
+    missing = missing_settings(provider)
+    if missing:
+        raise SystemExit(
+            f"Missing settings for {provider}: {', '.join(missing)}.\n"
+            "Set them in this terminal first (they reset when you open a new window), e.g.\n"
+            + "\n".join(f"  export {k}='...'" for k in missing))
+
+
 def call_model(provider: str, system: str, user: str) -> tuple[str, int, int, str]:
     """One live request. Returns raw text, input tokens, output tokens, model ID."""
     model = os.environ.get("COURSE_MODEL", "").strip()

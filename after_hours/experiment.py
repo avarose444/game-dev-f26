@@ -13,7 +13,7 @@ import statistics
 import time
 from pathlib import Path
 
-from .agent import LIVE_PROVIDERS, take_turn
+from .agent import LIVE_PROVIDERS, require_settings, take_turn
 from .state import Fact, GameState
 
 CASES = json.loads((Path(__file__).parent / "evals" / "cases.json").read_text())
@@ -85,7 +85,9 @@ def run(provider: str) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--provider", choices=LIVE_PROVIDERS, required=True)
-    print(json.dumps(run(parser.parse_args().provider), indent=2))
+    provider = parser.parse_args().provider
+    require_settings(provider)
+    print(json.dumps(run(provider), indent=2))
 
 
 if __name__ == "__main__":

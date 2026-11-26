@@ -260,5 +260,16 @@ class FallbackTests(unittest.TestCase):
         self.assertNotIn("grey corp jacket", seen[0])
 
 
+class SettingsTests(unittest.TestCase):
+    def test_missing_settings_stop_a_live_run(self):
+        import os
+        from unittest import mock
+        from after_hours.agent import missing_settings, require_settings
+        with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_PROJECT": "p", "GOOGLE_CLOUD_LOCATION": "global"}, clear=True):
+            self.assertEqual(missing_settings("vertex"), ["COURSE_MODEL"])
+            with self.assertRaises(SystemExit):
+                require_settings("vertex")
+
+
 if __name__ == "__main__":
     unittest.main()

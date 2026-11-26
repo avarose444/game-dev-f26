@@ -11,7 +11,7 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
-from .agent import LIVE_PROVIDERS
+from .agent import LIVE_PROVIDERS, require_settings
 from .night import Night
 
 STATIC = Path(__file__).parent / "static"
@@ -91,6 +91,8 @@ def main() -> None:
     parser.add_argument("--provider", choices=LIVE_PROVIDERS, default="vertex")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
+    if args.mode == "agent":
+        require_settings(args.provider)
     server = HTTPServer(("127.0.0.1", args.port), make_handler(Game(args.mode, args.provider)))
     print(f"After Hours ({args.mode} mode) at http://127.0.0.1:{args.port}  (Ctrl+C to stop)")
     try:
