@@ -316,3 +316,80 @@ SALLOW_STEPS = [
     "Sallow is inside the Kessler building.",
     "Sallow is at the freight lift.",
 ]
+
+# ---------- Truth variants (mystery bible Section 8): a second night that isn't spoiled ----------
+# Same people, wants, deals and events. What changes: the clue text, where Rook is hiding,
+# the drone footage, Sallow's route, the finale, and Rook's 3 a.m. text. Hideout descriptions
+# are identical in both, so the list itself gives nothing away.
+
+_HIDEOUT_ABOUT = {h: {"name": v["name"], "about": v["about"]} for h, v in HIDEOUTS.items()}
+
+TRUTHS = {
+    "A": {
+        "clues": CLUES,
+        "e5_text": EVENTS["E5"]["text"],
+        "e5_line": EXTRA_EVIDENCE["E5"]["line"],
+        "hideouts": HIDEOUTS,
+        "rook_is_at": ROOK_IS_AT,
+        "place": "the lift",
+        "sallow_steps": SALLOW_STEPS,
+        "finale_text": FINALE["text"],
+        "rook_text": "its pitch black in here. no power, no signal. hurry",
+    },
+    "B": {
+        "clues": {
+            "C1": {
+                "npc": "mara",
+                "title": "Who Rook left with",
+                "line": "Rook left here at 11:30 with a man in a grey corp jacket. He paid Rook's tab in cash. "
+                        "Before they went, Rook asked me for a bag of ice and wouldn't say what for.",
+                "keywords": ["11:30", "1130", "eleven thirty", "half eleven", "half past eleven", "grey jacket",
+                             "gray jacket", "corp jacket", "paid rook's tab", "paid the tab", "paid in cash",
+                             "bag of ice", "some ice", "for ice", "the ice"],
+            },
+            "C2": {
+                "npc": "jun",
+                "title": "The job",
+                "line": "I gave Rook a Veyra Dynamics biochip at nine, for a drop at the canal docks at one. "
+                        "It has to stay frozen, or it's dead in a few hours. The drop never happened.",
+                "keywords": ["veyra", "chip", "the drop", "a drop", "drop never", "package", "the cargo",
+                             "canal docks", "frozen", "stay cold", "keep it cold"],
+            },
+            "C3": {
+                "npc": "nico",
+                "title": "Where Rook went",
+                "line": "Rook came to me around one, cut on the arm. I stitched it. Then Rook went out my back door, "
+                        "into the market stalls, not toward the street. Already shivering.",
+                "keywords": ["stitch", "cut on", "the arm", "back door", "out the back", "market stalls",
+                             "patched rook", "patched them", "shivering", "cold storage"],
+            },
+        },
+        "e5_text": "Jun taps his wrist. \"You made me a promise, so here's a gift.\" His drone's footage: "
+                   "Rook and a grey-jacketed man in the alley, Rook breaking away and doubling back into the night market.",
+        "e5_line": "Rook breaking away from the grey jacket in the alley and doubling back into the night market.",
+        "hideouts": {
+            "docks": {**_HIDEOUT_ABOUT["docks"], "wrong": HIDEOUTS["docks"]["wrong"]},
+            "cold_storage": {**_HIDEOUT_ABOUT["cold_storage"], "wrong": ""},
+            "lift": {**_HIDEOUT_ABOUT["lift"],
+                     "wrong": "The lift doors grind open on an empty shaft and old cables. No Rook. "
+                              "By the time you're back on the street, it's too late."},
+        },
+        "rook_is_at": "cold_storage",
+        "place": "the cold-storage door",
+        "sallow_steps": [
+            "Sallow is checking the canal docks.",
+            "Sallow is checking the canal docks.",
+            "Sallow is asking questions on the Kessler block.",
+            "Sallow is working the night market.",
+            "Sallow is behind the clinic stalls.",
+            "Sallow is at the cold-storage door.",
+        ],
+        "finale_text": "You haul the cold-storage door open. Rook is inside between the fish crates, lips blue, "
+                       "arm bandaged, the chip packed in ice. \"You came. I didn't know who else to trust.\"",
+        "rook_text": "so cold in here. cant feel my fingers. hurry",
+    },
+}
+
+
+def truth(name: str = "A") -> dict:
+    return TRUTHS[name]

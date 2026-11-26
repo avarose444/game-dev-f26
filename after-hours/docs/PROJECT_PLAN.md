@@ -68,12 +68,14 @@ After G2/G3, the scope-lock plan (G3) sets the Alpha / Beta / Gold work for the 
 
 **What happened Nov 22:** the full night was built, then redesigned after my own play-through found it not fun (v0.3: wants and deals, deduction, Sallow's hunt; GDD Section 6A), then given its final look (neon-deco UI, ambient sound, Rook's phone). That was the right call for the hypothesis and the playtest, but it is the last design change before G2/G3.
 
+**Slip (Nov 26):** tasks 13–14 ran three days late (nothing was committed Nov 23–25). Task 15 moves to Fri Nov 27 alongside the playtest log; task 16 (internal play-through) is folded into today's agent-mode night.
+
 **[DECISION, Nov 23]: feature freeze.** From Nov 23 only bug fixes, Variant B, agent-mode fixes, docs and the playtest. No new mechanics, events, characters or UI features until after the G2/G3 review.
 
 | # | Dates | Task | Acceptance criteria |
 |---|---|---|---|
-| 13 | Mon Nov 23 | **Agent-mode check against v0.3** (agent context knows deals and the Mara betrayal; Experiment 1 rerun with updated thresholds; one full night in agent mode with Vertex) | Experiment rerun passes Nov 22 criteria; no blocking bugs in a full agent-mode night |
-| 14 | Mon Nov 23–Tue 24 | **Truth Variant B** (different hideout and clue holders) for the second night of the two-mode playtest | Both variants play through to every ending in tests |
+| 13 | Mon Nov 23 → **done Nov 26** | **Agent-mode check against v0.3** (agent context knows deals and the Mara betrayal; Experiment 1 rerun with updated thresholds; one full night in agent mode with Vertex) | Experiment rerun passes Nov 22 criteria; no blocking bugs in a full agent-mode night. **Result:** run 3 passes every criterion (EXPERIMENT_1.md); found and fixed a silent all-fallback mode when settings are missing |
+| 14 | Mon Nov 23–Tue 24 → **done Nov 26** | **Truth Variant B** (different hideout and clue holders) for the second night of the two-mode playtest | Both variants play through to every ending in tests. **Result:** done (`--truth B`); clue holders and villain name kept, deviation logged in MYSTERY_BIBLE 8a |
 | 15 | Tue Nov 24 | Configuration Document and Risk Register updated for v0.3; plan moved to Asana | Docs match the build |
 | 16 | Wed Nov 25 | Internal play-through, both modes; bug fixes only | No blocking bugs |
 | 17 | Thu Nov 26–Fri 27 | **External playtest** (1+ players outside the course, one night per mode, order alternated) and Initial Playtest Log | Log entry per reader Section 5.9 |

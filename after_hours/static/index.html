@@ -588,7 +588,7 @@ const LATER = [   // texts that arrive during the night
   { id: "jun", from: "Jun", c: "var(--jun)", when: (s) => lead(s, "jun") === "shared", text: "Remember our arrangement." },
   { id: "tail", from: "Unknown number", c: "#ff7d8a", when: (s) => s.sallow.heat >= 3, text: "Stop looking for your friend." },
   { id: "rook", from: "Rook", c: "var(--pink)", when: (s) => s.slot === "3am" && s.phase !== "dawn",
-    text: "its pitch black in here. no power, no signal. hurry" },
+    text: (s) => s.rook_text },
   { id: "close", from: "Unknown number", c: "#ff7d8a", when: (s) => s.sallow.heat >= 5, text: "I'm closer than you are." },
 ];
 let received = [], unread = false;
@@ -597,8 +597,9 @@ const lead = (s, npc) => (s.leads.find((l) => l.npc === npc) || {}).status;
 function checkTexts(now, silent) {
   for (const t of LATER) {
     if (received.some((r) => r.id === t.id) || !t.when(now)) continue;
-    received.push({ ...t, fresh: !silent });
-    if (!silent) { unread = true; toast(t.from, t.text); }
+    const text = typeof t.text === "function" ? t.text(now) : t.text;
+    received.push({ ...t, text, fresh: !silent });
+    if (!silent) { unread = true; toast(t.from, text); }
   }
   $("phone-btn").classList.toggle("unread", unread);
 }

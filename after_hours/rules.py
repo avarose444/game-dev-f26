@@ -1,6 +1,6 @@
 """Game rules: which actions are legal, and how a validated proposal changes state."""
 
-from .content import CLUES, COMMITMENT_OPTIONS
+from .content import CLUES, COMMITMENT_OPTIONS, truth
 from .state import (MAX_FACTS, MAX_MEMORIES, METER_MAX, METER_MIN, Fact, GameState,
                     clamp)
 
@@ -56,7 +56,7 @@ def reveal(state: GameState, npc_id: str) -> str:
     state.npcs[npc_id].revealed_clue = clue_id
     if clue_id not in state.case_board:
         state.case_board.append(clue_id)
-    return CLUES[clue_id]["line"]
+    return truth(state.truth)["clues"][clue_id]["line"]
 
 
 def change_meters(state: GameState, npc_id: str, trust: int = 0, warmth: int = 0) -> None:

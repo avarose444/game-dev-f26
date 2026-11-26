@@ -155,6 +155,22 @@ Same characters, same rules, different facts, so a player's second night isn't s
 
 Variant B swaps the clue keywords and Mara/Jun's known facts accordingly. Events stay the same.
 
+### 8a. Variant B as built (Nov 26): awaiting my approval
+
+The table above swapped who holds which clue and renamed the villain. Since then, v0.3 tied the deals to who holds what (Jun's "sell out Mara" deal needs Mara's clue; Nico's deal is about keeping Mara out), and the UI and the hunt track are named after Sallow. Swapping holders or renaming Sallow two days before the playtest would mean rewriting deals, events and UI during the feature freeze. So the build keeps the people, wants, deals and events, and changes **what the clues say and where Rook is**:
+
+| | Variant A | Variant B (built) |
+|---|---|---|
+| C1 Mara | 11:30 with the grey jacket; bike left behind, went on foot | 11:30 with the grey jacket; Rook asked for **a bag of ice** |
+| C2 Jun | Veyra chip; docks drop (herring); **key to the Kessler service floors** | Veyra **biochip that has to stay frozen**; docks drop (herring) |
+| C3 Nico | stitched; headed **east toward Kessler**, asking where the cameras don't reach | stitched; went **out the back door into the market stalls**, shivering |
+| E5 footage | running east | doubling back into the night market |
+| Rook's 3 a.m. text | "pitch black… no power" | "so cold in here… cant feel my fingers" |
+| Where Rook hides | Kessler freight lift | **Night-market cold storage** |
+| Herrings | docks, cold storage | docks, lift |
+
+The hideout list and descriptions are identical in both variants. Run with `--truth B`. Tests play Variant B to every ending.
+
 ## 9. Scripted baseline (the comparison and the fallback)
 
 For each NPC and each slot: an opening line, and menu dialogue with **four options per node**, each tagged with any fact it creates. Examples for Mara:

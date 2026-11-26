@@ -187,8 +187,10 @@ class EventTests(unittest.TestCase):
 
 
 class EndingTests(unittest.TestCase):
+    TRUTH, ANSWER, WRONG = "A", "lift", "docks"
+
     def at_three(self, heat=None, flags=(), trust=None) -> Night:
-        night = scripted_night()
+        night = Night("scripted", truth=self.TRUTH)
         for _ in range(3):
             skip_slot(night, "rooftop")
         if heat is not None:
@@ -200,48 +202,96 @@ class EndingTests(unittest.TestCase):
 
     def test_wrong_hideout_is_last_call(self):
         night = self.at_three()
-        night.visit("docks")
+        night.visit(self.WRONG)
         self.assertEqual(night.ending, "last_call")
 
     def test_keep_the_chip_is_paid_in_full(self):
         night = self.at_three(flags={"want_done:jun"})
-        night.visit("lift")
+        night.visit(self.ANSWER)
         night.choose_finale("keep")
         self.assertEqual(night.ending, "paid_in_full")
         self.assertTrue(next(c for c in night.dawn_cards() if c["npc"] == "Jun")["promise_broken"])
 
     def test_return_with_jun_deal_is_out_by_dawn(self):
         night = self.at_three(flags={"want_done:jun"})
-        night.visit("lift")
+        night.visit(self.ANSWER)
         night.choose_finale("return")
         self.assertEqual(night.ending, "out_by_dawn")
 
     def test_destroy_needs_an_ally(self):
         night = self.at_three()
-        night.visit("lift")
+        night.visit(self.ANSWER)
         night.choose_finale("destroy")
         self.assertEqual(night.ending, "last_call")
         night = self.at_three(trust={"nico": 3})
-        night.visit("lift")
+        night.visit(self.ANSWER)
         night.choose_finale("destroy")
         self.assertEqual(night.ending, "out_by_dawn")
 
     def test_sallow_at_the_lift_without_allies(self):
         night = self.at_three(heat=5)
-        night.visit("lift")
+        night.visit(self.ANSWER)
         self.assertEqual(night.ending, "last_call")
 
     def test_sallow_at_the_lift_with_an_ally(self):
         night = self.at_three(heat=5, flags={"want_done:mara"})
-        night.visit("lift")
+        night.visit(self.ANSWER)
         self.assertEqual(night.phase, "finale")
 
     def test_not_found_after_flirt_is_morning_after(self):
-        night = scripted_night()
+        night = Night("scripted", truth=self.TRUTH)
         night.state.flags.add("nico_knows_flirt")
         for _ in range(4):
             skip_slot(night, "rooftop")
         self.assertEqual(night.ending, "morning_after")
+
+
+class EndingTestsVariantB(EndingTests):
+    """Variant B must reach every ending too (Project Plan task 14 acceptance)."""
+    TRUTH, ANSWER, WRONG = "B", "cold_storage", "lift"
+
+
+class VariantTests(unittest.TestCase):
+    def test_b_hides_rook_somewhere_else_with_different_clues(self):
+        a, b = Night("scripted"), Night("scripted", truth="B")
+        for night in (a, b):
+            night.state.npcs["nico"].trust = 4
+            night.visit("clinic")
+            night.choose_option(night.options().index("Was Rook hurt? Where did they go?"))
+        text = lambda n: n.snapshot()["case_board"][0]["text"]
+        self.assertIn("Kessler", text(a))
+        self.assertIn("back door", text(b))
+        self.assertNotEqual(a.snapshot()["rook_text"], b.snapshot()["rook_text"])
+
+    def test_hideout_list_is_identical_in_both_variants(self):
+        def hideouts(truth):
+            night = Night("scripted", truth=truth)
+            for _ in range(3):
+                skip_slot(night, "rooftop")
+            return night.snapshot()["hideouts"]
+        self.assertEqual(hideouts("A"), hideouts("B"))
+
+    def test_b_finale_and_footage(self):
+        night = Night("scripted", truth="B")
+        night.visit("rooftop")
+        learn_want(night)
+        night.make_deal("jun_promise")
+        night.leave()
+        night.visit("rooftop")
+        night.choose_event("watch")
+        self.assertIn("night market", night.snapshot()["case_board"][-1]["text"])
+
+    def test_validator_uses_this_nights_clue_words(self):
+        from after_hours.content import truth
+        from after_hours.validator import Rejection, check_line_matches_action
+        line = "Rook asked me for a bag of ice earlier."
+        check_line_matches_action("mara", line, "none", truth("A")["clues"])     # harmless in A
+        with self.assertRaises(Rejection):
+            check_line_matches_action("mara", line, "none", truth("B")["clues"])  # the clue in B
+
+    def test_unknown_truth_is_rejected(self):
+        with self.assertRaises(ValueError):
+            Night("scripted", truth="C")
 
 
 class GuidanceTests(unittest.TestCase):

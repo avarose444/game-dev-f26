@@ -11,25 +11,28 @@ baseline): replies from the authored menu in content.BASELINE.
 
 from . import rules
 from .agent import take_turn
-from .content import (BASELINE, BASELINE_ASK, BASELINE_CALLBACKS, CLUES, DEALS, ENDINGS, EVENTS,
-                      EXTRA_EVIDENCE, FACT_CUES, FALLBACK_LINES, FINALE, HIDEOUTS, LEAD_HINTS, LOCATION_NAMES,
-                      NPC_LOCATIONS, OPENING_LINES, PERSONAS, ROOK_IS_AT, SALLOW_MAX, SALLOW_STEPS,
-                      SUGGESTED_REPLIES, WANT_ASK, WANTS)
+from .content import (BASELINE, BASELINE_ASK, BASELINE_CALLBACKS, DEALS, ENDINGS, EVENTS, EXTRA_EVIDENCE,
+                      FACT_CUES, FALLBACK_LINES, FINALE, LEAD_HINTS, LOCATION_NAMES, NPC_LOCATIONS,
+                      OPENING_LINES, PERSONAS, SALLOW_MAX, SUGGESTED_REPLIES, TRUTHS, WANT_ASK, WANTS)
 from .state import SLOTS, Fact
 
 EXCHANGES_PER_VISIT = 6
 LIVE_CALL_LIMIT = 60
 NPC_AT = {loc: npc for npc, loc in NPC_LOCATIONS.items()}
-EVIDENCE = {**{cid: {"title": c["title"], "line": c["line"]} for cid, c in CLUES.items()}, **EXTRA_EVIDENCE}
 
 
 class Night:
-    def __init__(self, mode: str = "scripted", provider: str = "vertex", model_fn=None):
+    def __init__(self, mode: str = "scripted", provider: str = "vertex", model_fn=None, truth: str = "A"):
         if mode not in ("agent", "scripted"):
             raise ValueError("mode must be agent or scripted")
+        if truth not in TRUTHS:
+            raise ValueError("truth must be A or B")
         from .state import GameState
         self.mode, self.provider, self.model_fn = mode, provider, model_fn
-        self.state = GameState()
+        self.state = GameState(truth=truth)
+        self.t = TRUTHS[truth]                  # this night's facts (mystery bible Section 8)
+        self.evidence = {**{cid: {"title": c["title"], "line": c["line"]} for cid, c in self.t["clues"].items()},
+                         "E5": {"title": EXTRA_EVIDENCE["E5"]["title"], "line": self.t["e5_line"]}}
         self.phase = "choose_location"          # choose_location | event | talk | finale | dawn
         self.npc: str | None = None
         self.events: list[str] = []
@@ -80,7 +83,7 @@ class Night:
                 if not (loc == "lantern" and "lantern_closed" in self.state.flags)]
 
     def hideouts(self) -> list[str]:
-        return list(HIDEOUTS) if self.phase == "choose_location" and self.state.slot == "3am" else []
+        return list(self.t["hideouts"]) if self.phase == "choose_location" and self.state.slot == "3am" else []
 
     # ---------- moving through the night ----------
     def visit(self, location: str) -> list[dict]:
@@ -127,7 +130,8 @@ class Night:
         if self.events:
             self.phase = "event"
             event = EVENTS[self.events[0]]
-            self._say("event", f"{event['title']}: {event['text']}")
+            text = self.t["e5_text"] if self.events[0] == "E5" else event["text"]
+            self._say("event", f"{event['title']}: {text}")
         else:
             self.phase = "talk"
             self._nudge_if_ready()
@@ -199,7 +203,7 @@ class Night:
         elif event_id == "E5":
             if "E5" not in s.case_board:
                 s.case_board.append("E5")
-                self._say("clue", "Drone footage: " + EXTRA_EVIDENCE["E5"]["line"])
+                self._say("clue", "Drone footage: " + self.t["e5_line"])
         if ends_visit:
             self._end_visit()
         else:
@@ -427,7 +431,7 @@ class Night:
         self.state.slot = SLOTS[self.slot_index + 1]
         self.phase = "choose_location"
         self._heat(1, "another hour gone.")
-        self._say("hunt", SALLOW_STEPS[self.heat])
+        self._say("hunt", self.t["sallow_steps"][self.heat])
         if self.state.slot == "3am":
             self._say("system", "3 a.m. Last hour. Where is Rook hiding? Check your case board, then choose. "
                                 "(Or spend the hour talking, and hope.)")
@@ -435,21 +439,21 @@ class Night:
     # ---------- the search, the finale, Dawn ----------
     def _search(self, hideout: str) -> list[dict]:
         self.state.location = hideout
-        self._say("player", f"Search the {HIDEOUTS[hideout]['name']}.")
-        if hideout != ROOK_IS_AT:
-            self._dawn(found_rook=False, reason=HIDEOUTS[hideout]["wrong"])
+        self._say("player", f"Search the {self.t['hideouts'][hideout]['name']}.")
+        if hideout != self.t["rook_is_at"]:
+            self._dawn(found_rook=False, reason=self.t['hideouts'][hideout]["wrong"])
             return self.feed
         if self.heat >= SALLOW_MAX:
             helpers = self.allies()
             if not helpers:
-                self._dawn(found_rook=False, reason="You find the lift, and Sallow standing in front of it. "
+                self._dawn(found_rook=False, reason=f"You find {self.t['place']}, and Sallow standing in front of it. "
                                                     "Nobody's coming to help you.")
                 return self.feed
             name = PERSONAS[helpers[0]]["name"]
-            self._say("narration", f"Sallow is already at the lift. Then {name} steps out of the dark behind him, "
+            self._say("narration", f"Sallow is already at {self.t['place']}. Then {name} steps out of the dark behind him, "
                                    "and he decides it isn't worth it.")
         self.phase = "finale"
-        self._say("narration", FINALE["text"])
+        self._say("narration", self.t["finale_text"])
         return self.feed
 
     def choose_finale(self, choice: str) -> list[dict]:
@@ -495,15 +499,17 @@ class Night:
         s = self.state
         return {
             "mode": self.mode, "phase": self.phase, "slot": s.slot, "location": s.location,
-            "location_name": LOCATION_NAMES.get(s.location) or HIDEOUTS.get(s.location, {}).get("name", s.location),
+            "location_name": LOCATION_NAMES.get(s.location) or self.t["hideouts"].get(s.location, {}).get("name", s.location),
             "npc": self.npc, "npc_name": PERSONAS[self.npc]["name"] if self.npc else None,
             "locations": [{"id": loc, "name": LOCATION_NAMES[loc]} for loc in self.locations()],
-            "hideouts": [{"id": h, "name": HIDEOUTS[h]["name"], "about": HIDEOUTS[h]["about"]} for h in self.hideouts()],
+            "hideouts": [{"id": h, "name": self.t["hideouts"][h]["name"], "about": self.t["hideouts"][h]["about"]} for h in self.hideouts()],
             "event": self.current_event(), "options": self.options(), "deals": self.deals(),
             "finale_choices": FINALE["choices"] if self.phase == "finale" else {},
-            "case_board": [{"id": c, "title": EVIDENCE[c]["title"], "text": EVIDENCE[c]["line"]} for c in s.case_board],
+            "case_board": [{"id": c, "title": self.evidence[c]["title"], "text": self.evidence[c]["line"]} for c in s.case_board],
             "credits": s.credits, "exchanges_left": EXCHANGES_PER_VISIT - self.exchanges,
-            "sallow": {"heat": self.heat, "max": SALLOW_MAX, "where": SALLOW_STEPS[self.heat]},
+            "truth": self.state.truth,
+            "rook_text": self.t["rook_text"],
+            "sallow": {"heat": self.heat, "max": SALLOW_MAX, "where": self.t["sallow_steps"][self.heat]},
             "leads": self.leads(), "clues_needed": 2,
             "ending": {"id": self.ending, "title": ENDINGS[self.ending][0]} if self.ending else None,
             "dawn_cards": self.dawn_cards() if self.phase == "dawn" else [],

@@ -19,14 +19,14 @@ STATIC_FILES = {"sound.js": "text/javascript; charset=utf-8"}  # explicit list: 
 
 
 class Game:
-    def __init__(self, mode: str, provider: str):
-        self.default_mode, self.provider = mode, provider
-        self.night = Night(mode, provider)
+    def __init__(self, mode: str, provider: str, truth: str = "A"):
+        self.default_mode, self.provider, self.truth = mode, provider, truth
+        self.night = Night(mode, provider, truth=truth)
 
     def handle(self, action: str, body: dict) -> dict:
         n = self.night
         if action == "new":
-            self.night = n = Night(body.get("mode", self.default_mode), self.provider)
+            self.night = n = Night(body.get("mode", self.default_mode), self.provider, truth=self.truth)
         elif action == "visit":
             n.visit(body["location"])
         elif action == "event":
@@ -89,12 +89,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="After Hours in your browser")
     parser.add_argument("--mode", choices=["agent", "scripted"], default="scripted")
     parser.add_argument("--provider", choices=LIVE_PROVIDERS, default="vertex")
+    parser.add_argument("--truth", choices=["A", "B"], default="A",
+                        help="mystery variant: A (main game) or B (second playtest night)")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     if args.mode == "agent":
         require_settings(args.provider)
-    server = HTTPServer(("127.0.0.1", args.port), make_handler(Game(args.mode, args.provider)))
-    print(f"After Hours ({args.mode} mode) at http://127.0.0.1:{args.port}  (Ctrl+C to stop)")
+    server = HTTPServer(("127.0.0.1", args.port), make_handler(Game(args.mode, args.provider, args.truth)))
+    print(f"After Hours ({args.mode} mode, truth {args.truth}) at http://127.0.0.1:{args.port}  (Ctrl+C to stop)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

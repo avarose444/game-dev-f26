@@ -10,7 +10,7 @@ import os
 import time
 
 from . import rules
-from .content import CLUES, FALLBACK_LINES, KNOWN_FACTS, PERSONAS
+from .content import FALLBACK_LINES, KNOWN_FACTS, PERSONAS, truth
 from .state import GameState
 from .validator import SCHEMA, Rejection, validate
 
@@ -80,7 +80,7 @@ def build_context(state: GameState, npc_id: str, player_message: str) -> dict:
         "player_message": player_message,
     }
     if npc.revealed_clue:  # only after the game accepted reveal_clue
-        context["clue_you_already_shared"] = CLUES[npc.revealed_clue]["line"]
+        context["clue_you_already_shared"] = truth(state.truth)["clues"][npc.revealed_clue]["line"]
     situation = situation_for(state, npc_id)
     if situation:
         context["what_you_know_tonight"] = situation
@@ -201,7 +201,8 @@ def take_turn(state: GameState, npc_id: str, player_message: str, provider: str,
             raw, t_in, t_out, model = model_fn(SYSTEM, user)
             tokens_in += t_in
             tokens_out += t_out
-            proposal = validate(raw, npc_id, legal, player_message, memory_ids)
+            proposal = validate(raw, npc_id, legal, player_message, memory_ids,
+                                clues=truth(state.truth)["clues"])
             break
         except Rejection as rejection:
             rejections.append(rejection.kind)

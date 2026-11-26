@@ -38,6 +38,7 @@ class GameState:
     location: str = "lantern"
     npcs: dict[str, NPCState] = field(default_factory=lambda: {n: NPCState() for n in ("mara", "jun", "nico")})
     credits: int = 20
+    truth: str = "A"                                          # mystery bible variant: "A" or "B"
     conversation: list[dict] = field(default_factory=list)   # {"speaker": ..., "text": ...}
     case_board: list[str] = field(default_factory=list)
     flags: set[str] = field(default_factory=set)              # e.g. "covered_tab" from event E1

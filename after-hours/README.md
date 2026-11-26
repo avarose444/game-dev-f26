@@ -17,6 +17,7 @@ From the repository root (`uv sync` once first):
 ```bash
 uv run python -m after_hours.server                                   # scripted mode (the baseline), no model, no cost
 uv run python -m after_hours.server --mode agent --provider vertex    # agent mode (needs the Vertex settings below)
+uv run python -m after_hours.server --truth B                         # add --truth B for the second playtest night (different answer)
 ```
 
 Then open <http://127.0.0.1:8000>. Agent mode needs `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION=global` and `COURSE_MODEL=gemini-3.5-flash-lite` set in the same terminal. A session is capped at 60 live calls; after that NPCs use scripted lines.

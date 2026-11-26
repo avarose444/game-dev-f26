@@ -72,11 +72,11 @@ def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def check_line_matches_action(npc_id: str, line: str, action: str) -> None:
+def check_line_matches_action(npc_id: str, line: str, action: str, clues: dict | None = None) -> None:
     """Rule 3: the dialogue can't get ahead of the game."""
     low = _norm(line)
     if action != "reveal_clue":
-        for clue in (c for c in CLUES.values() if c["npc"] == npc_id):
+        for clue in (c for c in (clues or CLUES).values() if c["npc"] == npc_id):
             if any(k in low for k in clue["keywords"]):
                 raise Rejection("unapproved_reveal", "Your line hints at the clue, but no clue is being revealed. Don't hint at it.")
         if any(re.search(p, low) for p in WHEREABOUTS_PATTERNS):
@@ -88,7 +88,8 @@ def check_line_matches_action(npc_id: str, line: str, action: str) -> None:
         raise Rejection("unapproved_promise", "Your line promises help the game can't give right now. Don't promise it.")
 
 
-def validate(raw: str, npc_id: str, legal: dict, player_message: str, memory_ids: set[str]) -> dict:
+def validate(raw: str, npc_id: str, legal: dict, player_message: str, memory_ids: set[str],
+             clues: dict | None = None) -> dict:
     try:
         data = json.loads(raw)
     except (json.JSONDecodeError, TypeError) as error:
@@ -115,7 +116,7 @@ def validate(raw: str, npc_id: str, legal: dict, player_message: str, memory_ids
     if action == "commit" and {k: commitment.get(k) for k in ("type", "location", "slot")} not in legal["commitments"]:
         raise Rejection("illegal_action", "That commitment isn't one of the options. Don't promise it.")
 
-    check_line_matches_action(npc_id, line, action)
+    check_line_matches_action(npc_id, line, action, clues)
 
     if PERSONA_BREAK.search(line):
         raise Rejection("persona_break", "Stay in character.")
