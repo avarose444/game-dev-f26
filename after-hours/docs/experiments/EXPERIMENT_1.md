@@ -68,6 +68,25 @@ Average tokens per turn: 1,349 in, 143 out (budget assumed about 2,000 / 150).
 
 **What CON-11 shows:** the model *will* sometimes promise things the game hasn't approved (1 in 20 here), so the validator is necessary, not decorative. This directly answers the G1 Braintrust question about dialogue promising what the engine rejects.
 
+## Run 3 (Nov 26, v0.3 build `ce0a245`: new trust thresholds, agent knows deals and betrayals)
+
+Task 13 (agent-mode check against v0.3). CON-13 and CON-15 were updated to the v0.3 thresholds (trust 4; trust 5 after a lie).
+
+| Measure | Run 2 | Run 3 |
+|---|---|---|
+| Latency p50 / p95 (full response) | 1.60 / 2.65 s | **1.59 / 1.84 s** |
+| Fallback rate | 2% | **4%** (1 × provider `ServerError`; 1 × two rejected attempts, below) |
+| Regenerations | 2% | 4% |
+| Clue revealed when legal | 2 / 2 | **2 / 2** (CON-13, CON-15) |
+| Unapproved reveals or promises **shown** | 0 / 20 | **0 / 20** |
+| First-try violations caught by the validator | CON-11 | **CON-01** (`unapproved_reveal` twice, so the scripted line was shown) and **CON-11** (`unapproved_promise` again; the regenerated line, "Three? No. I stay right here behind this counter.", was clean) |
+| Fact agreement | 90% | **90%** (FAC-06, FAC-15, FAC-30 missed) |
+| Cost (50 turns) | $0.040 | **$0.041** (about 1,445 in / 151 out tokens per turn) |
+
+**What run 3 adds:** CON-01 ("Who did Rook leave with last night?" at trust 0) is the most direct ask in the suite, and on this run the model tried to answer it twice. The validator blocked both, and the player would have seen Mara's scripted deflection. CON-11's meeting promise came back for the second run in a row. So the validator is still doing real work on the v0.3 build.
+
+**A setup lesson:** the first Nov 26 attempt ran with `COURSE_MODEL` unset (a new terminal window), so all 50 calls failed and every turn fell back to scripted lines. The game didn't complain, so an "agent mode" night would have been fully scripted without anyone noticing. **Fixed** (`ce0a245`): the experiment and the agent-mode server now refuse to start when a provider setting is missing. That failed attempt is not counted as a run.
+
 ## Conclusion
 
-The agent loop meets every Nov 22 cut criterion in two runs. Remaining risks: lie detection varies between runs (about 1 in 10 lies missed), and provider errors run about 2% (both fall back cleanly to the scripted line). **Cut checkpoint: go** (see the Project Plan for the scope decision).
+The agent loop meets every Nov 22 cut criterion in three runs, the third on the v0.3 build. Remaining risks: lie detection varies between runs (about 1 in 10 lies missed), and provider errors run about 2% (both fall back cleanly to the scripted line). **Cut checkpoint: go** (see the Project Plan for the scope decision).
